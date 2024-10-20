@@ -247,6 +247,61 @@ namespace RW_CustomPawnGeneration
 		}
 	}
 
+	//[HarmonyPatch(typeof(PawnBioAndNameGenerator), "GiveAppropriateBioAndNameTo")]
+	//public static class Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo
+	//{
+	//	public static Dictionary<Pawn, PawnGenerationRequest> requests = new Dictionary<Pawn, PawnGenerationRequest>();
+	//	public static Pawn pawn = null;
+	//	public static PawnGenerationRequest request = default;
+
+	//	[HarmonyPriority(Priority.Last)]
+	//	[HarmonyPrefix]
+	//	public static void Prefix(Pawn pawn, FactionDef factionType, PawnGenerationRequest request, XenotypeDef xenotype)
+	//	{
+	//		Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.pawn = pawn;
+	//		Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.request = request;
+	//	}
+
+	//	[HarmonyPriority(Priority.First)]
+	//	[HarmonyPostfix]
+	//	public static void Postfix(Pawn pawn, FactionDef factionType, PawnGenerationRequest request, XenotypeDef xenotype)
+	//	{
+	//		Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.pawn = null;
+	//		Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.request = default;
+	//	}
+	//}
+
+	//[HarmonyPatch(typeof(PawnBioAndNameGenerator), "IsBioUseable")]
+	//public static class Patch_PawnBioAndNameGenerator_IsBioUseable
+	//{
+	//	[HarmonyPriority(Priority.Last)]
+	//	[HarmonyPostfix]
+	//	public static void Postfix(PawnBio bio, BackstoryCategoryFilter categoryFilter, PawnKindDef kind, Gender gender, string requiredLastName, ref bool __result)
+	//	{
+	//		if (!__result)
+	//			return;
+
+	//		Pawn pawn = Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.pawn;
+
+	//		if (pawn == null)
+	//			return;
+
+	//		PawnGenerationRequest request = Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.request;
+	//		WorkTags requiredWorkTags = pawn.kindDef.requiredWorkTags | request.KindDef.requiredWorkTags;
+
+	//		if (requiredWorkTags == WorkTags.None)
+	//			return;
+
+	//		WorkTags workDisables = pawn.CombinedDisabledWorkTags;
+	//		WorkTags overlap = workDisables & requiredWorkTags;
+
+	//		if (overlap == WorkTags.None)
+	//			return;
+
+	//		__result = false;
+	//	}
+	//}
+
 	[HarmonyPatch(typeof(PawnGenerator), "GenerateRandomAge")]
 	public static class Patch_PawnGenerator_GenerateRandomAge
 	{
