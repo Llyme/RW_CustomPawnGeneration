@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Verse;
@@ -611,13 +612,25 @@ namespace RW_CustomPawnGeneration
 
 		public static void DiscardGeneratedPawn(Pawn pawn)
 		{
-			typeof(PawnGenerator).GetMethod(
-				"DiscardGeneratedPawn",
-				BindingFlags.NonPublic
-			).Invoke(
-				null,
-				new object[] { pawn }
+			MethodInfo method = AccessTools.Method(
+				typeof(PawnGenerator),
+				"DiscardGeneratedPawn"
 			);
+
+			if (method == null)
+				return;
+
+			IList pawnsBeingGenerated = Tools.PawnsBeingGenerated;
+			object dummy = Patch_PawnGenerator_DiscardGeneratedPawn.dummy;
+			bool validDummy = dummy != null && !pawnsBeingGenerated.Contains(dummy);
+
+			if (validDummy)
+				pawnsBeingGenerated.Add(dummy);
+
+			method.Invoke(null, new object[] { pawn });
+
+			if (validDummy)
+				pawnsBeingGenerated.Remove(dummy);
 		}
 
 		[HarmonyPriority(Priority.First)]
@@ -659,12 +672,21 @@ namespace RW_CustomPawnGeneration
 	[HarmonyPatch(typeof(PawnGenerator), "DiscardGeneratedPawn")]
 	public static class Patch_PawnGenerator_DiscardGeneratedPawn
 	{
+		public static object dummy = null;
+
 		[HarmonyPriority(Priority.First)]
 		[HarmonyPrefix]
 		public static bool Prefix(Pawn pawn)
 		{
 			if (Patch_PawnGenerator_TryGenerateNewPawnInternal.genderPending.ContainsValue(pawn))
+			{
+				IList pawnsBeingGenerated = Tools.PawnsBeingGenerated;
+
+				if (pawnsBeingGenerated.Count > 0)
+					dummy = pawnsBeingGenerated[0];
+
 				return false;
+			}
 
 			return true;
 		}
