@@ -220,15 +220,15 @@ namespace RW_CustomPawnGeneration
 		}
 	}
 
-	[HarmonyPatch(typeof(Pawn_AgeTracker), "AgeTick")]
-	public static class Patch_Pawn_AgeTracker_AgeTick
+	[HarmonyPatch(typeof(Pawn_AgeTracker), "AgeTickInterval")]
+	public static class Patch_Pawn_AgeTracker_AgeTickInterval
 	{
 		public static readonly Module module =
 			new Module(
 				Settings.CustomAging,
 				typeof(Pawn_AgeTracker)
-				.GetMethod("AgeTick"),
-				prefix: new HarmonyMethod(typeof(Patch_Pawn_AgeTracker_AgeTick).GetMethod("Patch"))
+				.GetMethod("AgeTickInterval"),
+				prefix: new HarmonyMethod(typeof(Patch_Pawn_AgeTracker_AgeTickInterval).GetMethod("Patch"))
 			);
 
 		[HarmonyPrefix]
