@@ -149,9 +149,9 @@ namespace RW_CustomPawnGeneration
 
 				if (_CustomAgingUpdated)
 					if (_CustomAging)
-						Patch_Pawn_AgeTracker_AgeTick.module.Patch();
+						Patch_Pawn_AgeTracker_AgeTickInterval.module.Patch();
 					else
-						Patch_Pawn_AgeTracker_AgeTick.module.Unpatch();
+						Patch_Pawn_AgeTracker_AgeTickInterval.module.Unpatch();
 
 				if (_UngenderedParentUpdated)
 					if (_UngenderedParent)
