@@ -1,3 +1,5 @@
 
 Build/*
 obj/*
+.vscode/*
+.vs/*

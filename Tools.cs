@@ -1,4 +1,6 @@
-﻿using RimWorld;
+﻿using HarmonyLib;
+using RimWorld;
+using System.Collections;
 using System.Collections.Generic;
 using Verse;
 
@@ -6,6 +8,12 @@ namespace RW_CustomPawnGeneration
 {
 	public static class Tools
 	{
+		public static IList PawnsBeingGenerated =>
+			AccessTools.Field(
+				typeof(PawnGenerator),
+				"pawnsBeingGenerated"
+			).GetValue(null) as IList;
+
 		public static IEnumerable<BodyTypeDef> AllCPGAdultBodyTypes
 			(Settings.State global,
 			Settings.State state,

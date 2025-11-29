@@ -63,13 +63,17 @@ namespace RW_CustomPawnGeneration
 				if (IntStates != null && IntStates.ContainsKey(key0))
 					return IntStates[key0];
 
-				return IntDefaults.ContainsKey(key) ? IntDefaults[key] : 0;
+				return global
+					? GlobalIntDefaults.ContainsKey(key) ? GlobalIntDefaults[key] : 0
+					: LocalIntDefaults.ContainsKey(key) ? LocalIntDefaults[key] : 0;
 			}
 
 			public void Set(string key, int value)
 			{
 				string key0 = prefix + key;
-				int @default = IntDefaults.ContainsKey(key) ? IntDefaults[key] : 0;
+				int @default = global
+					? GlobalIntDefaults.ContainsKey(key) ? GlobalIntDefaults[key] : 0
+					: LocalIntDefaults.ContainsKey(key) ? LocalIntDefaults[key] : 0;
 
 				if (value != @default)
 					IntStates[key0] = value;

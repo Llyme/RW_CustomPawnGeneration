@@ -16,15 +16,22 @@ namespace RW_CustomPawnGeneration
 		{
 			// Initialize default settings.
 
-			Settings.IntDefaults[GenderWindow.GenderSlider] = 50;
+			Settings.GlobalIntDefaults[GenderWindow.GenderSlider] = 50;
+			Settings.LocalIntDefaults[GenderWindow.GenderSlider] = 50;
 
-			Settings.IntDefaults[AgeWindow.MaxAge] = 99;
-			Settings.IntDefaults[AgeWindow.AgeTick] = 1;
-			Settings.IntDefaults[Settings.CustomAging] = 0;
-			Settings.IntDefaults[Settings.UngenderedParent] = 0;
+			Settings.GlobalIntDefaults[AgeWindow.MaxAge] = 99;
+			Settings.LocalIntDefaults[AgeWindow.MaxAge] = 99;
+			Settings.GlobalIntDefaults[AgeWindow.AgeTick] = 1;
+			Settings.LocalIntDefaults[AgeWindow.AgeTick] = 1;
+			Settings.GlobalIntDefaults[Settings.CustomAging] = 0;
+			Settings.GlobalIntDefaults[Settings.UngenderedParent] = 0;
+			Settings.GlobalIntDefaults[GenderWindow.ModifyAggressively] = 1;
 
 			foreach (BodyTypeDef def in DefDatabase<BodyTypeDef>.AllDefs)
-				Settings.IntDefaults[def.defName] = 1;
+			{
+				Settings.GlobalIntDefaults[def.defName] = 1;
+				Settings.LocalIntDefaults[def.defName] = 1;
+			}
 
 
 			// Patch hooks.

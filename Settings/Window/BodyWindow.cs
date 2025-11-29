@@ -11,6 +11,7 @@ namespace RW_CustomPawnGeneration
 			"Enabling this will disable it.";
 		public const string DESCRIPTION_FILTER_BODY =
 			"When enabled, allows you to disable body types. " +
+			"Body types that are not checked will be disabled. " +
 			"There should be at least 1 body type. " +
 			"This only applies to humans.";
 

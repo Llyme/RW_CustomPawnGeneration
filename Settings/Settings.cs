@@ -7,7 +7,9 @@ namespace RW_CustomPawnGeneration
 {
 	public partial class Settings : ModSettings
 	{
-		public static Dictionary<string, int> IntDefaults =
+		public static Dictionary<string, int> GlobalIntDefaults =
+			new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+		public static Dictionary<string, int> LocalIntDefaults =
 			new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 		public static Dictionary<string, int> IntStates = null;
 
@@ -93,6 +95,12 @@ namespace RW_CustomPawnGeneration
 			state = new State(pawn.kindDef.race);
 		}
 
+		public static void GetStateMale(ThingDef race, out State global, out State state)
+		{
+			global = State.GLOBAL;
+			state = new State(race);
+		}
+
 		/// <summary>
 		/// Automatically points to the female configuration state if `SeparateGender` is enabled.
 		/// </summary>
@@ -106,6 +114,19 @@ namespace RW_CustomPawnGeneration
 			{
 				global = State.FEMALE;
 				state = new State(pawn.kindDef.race, pawn.gender);
+			}
+		}
+
+		public static void GetState(ThingDef race, Gender? gender, out State global, out State state)
+		{
+			GetStateMale(race, out global, out state);
+
+			if (gender != null &&
+				gender == Gender.Female &&
+				Bool(global, state, GenderWindow.SeparateGender))
+			{
+				global = State.FEMALE;
+				state = new State(race, gender.Value);
 			}
 		}
 	}

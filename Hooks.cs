@@ -1,6 +1,9 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Verse;
 
 namespace RW_CustomPawnGeneration
@@ -218,15 +221,15 @@ namespace RW_CustomPawnGeneration
 		}
 	}
 
-	[HarmonyPatch(typeof(Pawn_AgeTracker), "AgeTick")]
-	public static class Patch_Pawn_AgeTracker_AgeTick
+	[HarmonyPatch(typeof(Pawn_AgeTracker), "AgeTickInterval")]
+	public static class Patch_Pawn_AgeTracker_AgeTickInterval
 	{
 		public static readonly Module module =
 			new Module(
 				Settings.CustomAging,
 				typeof(Pawn_AgeTracker)
-				.GetMethod("AgeTick"),
-				prefix: new HarmonyMethod(typeof(Patch_Pawn_AgeTracker_AgeTick).GetMethod("Patch"))
+				.GetMethod("AgeTickInterval"),
+				prefix: new HarmonyMethod(typeof(Patch_Pawn_AgeTracker_AgeTickInterval).GetMethod("Patch"))
 			);
 
 		[HarmonyPrefix]
@@ -246,43 +249,79 @@ namespace RW_CustomPawnGeneration
 		}
 	}
 
+	//[HarmonyPatch(typeof(PawnBioAndNameGenerator), "GiveAppropriateBioAndNameTo")]
+	//public static class Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo
+	//{
+	//	public static Dictionary<Pawn, PawnGenerationRequest> requests = new Dictionary<Pawn, PawnGenerationRequest>();
+	//	public static Pawn pawn = null;
+	//	public static PawnGenerationRequest request = default;
+
+	//	[HarmonyPriority(Priority.Last)]
+	//	[HarmonyPrefix]
+	//	public static void Prefix(Pawn pawn, FactionDef factionType, PawnGenerationRequest request, XenotypeDef xenotype)
+	//	{
+	//		Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.pawn = pawn;
+	//		Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.request = request;
+	//	}
+
+	//	[HarmonyPriority(Priority.First)]
+	//	[HarmonyPostfix]
+	//	public static void Postfix(Pawn pawn, FactionDef factionType, PawnGenerationRequest request, XenotypeDef xenotype)
+	//	{
+	//		Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.pawn = null;
+	//		Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.request = default;
+	//	}
+	//}
+
+	//[HarmonyPatch(typeof(PawnBioAndNameGenerator), "IsBioUseable")]
+	//public static class Patch_PawnBioAndNameGenerator_IsBioUseable
+	//{
+	//	[HarmonyPriority(Priority.Last)]
+	//	[HarmonyPostfix]
+	//	public static void Postfix(PawnBio bio, BackstoryCategoryFilter categoryFilter, PawnKindDef kind, Gender gender, string requiredLastName, ref bool __result)
+	//	{
+	//		if (!__result)
+	//			return;
+
+	//		Pawn pawn = Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.pawn;
+
+	//		if (pawn == null)
+	//			return;
+
+	//		PawnGenerationRequest request = Patch_PawnBioAndNameGenerator_GiveAppropriateBioAndNameTo.request;
+	//		WorkTags requiredWorkTags = pawn.kindDef.requiredWorkTags | request.KindDef.requiredWorkTags;
+
+	//		if (requiredWorkTags == WorkTags.None)
+	//			return;
+
+	//		WorkTags workDisables = pawn.CombinedDisabledWorkTags;
+	//		WorkTags overlap = workDisables & requiredWorkTags;
+
+	//		if (overlap == WorkTags.None)
+	//			return;
+
+	//		__result = false;
+	//	}
+	//}
+
 	[HarmonyPatch(typeof(PawnGenerator), "GenerateRandomAge")]
 	public static class Patch_PawnGenerator_GenerateRandomAge
 	{
 		public const long AGE = 3600000;
 
-		[HarmonyPriority(Priority.Last)]
+		[HarmonyPriority(Priority.First)]
 		[HarmonyPrefix]
 		public static void Prefix(Pawn pawn, PawnGenerationRequest request)
 		{
-			if (pawn == null)
+			Settings.GetStateMale(request.KindDef.race, out Settings.State global, out Settings.State state);
+
+			if (!Settings.Bool(global, state, GenderWindow.OverrideGender))
 				return;
 
-			Settings.GetStateMale(pawn, out Settings.State global, out Settings.State state);
-
-			if (!pawn.RaceProps.hasGenders ||
-				!Settings.Bool(global, state, GenderWindow.OverrideGender))
+			if (!Settings.Bool(global, state, GenderWindow.ModifyAggressively))
 				return;
 
-			if (Settings.Bool(global, state, GenderWindow.UnforcedGender) ||
-				request.FixedGender == null)
-			{
-				bool isGlobal = Settings.IsGlobal(state, GenderWindow.OverrideGender);
-				int value = Settings.Int(global, state, GenderWindow.GenderSlider, isGlobal);
-				Gender gender;
-
-				if (value == 100)
-					gender = Gender.Female;
-				else if (value == 0)
-					gender = Gender.Male;
-				else if (Rand.Value < value / 100f)
-					gender = Gender.Female;
-				else
-					gender = Gender.Male;
-
-				if (pawn.gender != gender)
-					pawn.gender = gender;
-			}
+			Patch_PawnGenerator_TryGenerateNewPawnInternal.genderPending[request] = pawn;
 		}
 
 		[HarmonyPostfix]
@@ -355,133 +394,125 @@ namespace RW_CustomPawnGeneration
 		}
 	}
 
-	[HarmonyPatch(typeof(PawnGenerator), "GenerateBodyType")]
-	public static class Patch_PawnGenerator_GenerateBodyType
-	{
-		[HarmonyPriority(Priority.Last)]
-		[HarmonyPostfix]
-		public static void Patch(Pawn pawn, PawnGenerationRequest request)
-		{
-			if (pawn == null)
-				return;
+	//[HarmonyPatch(typeof(PawnGenerator), "GenerateBodyType")]
+	//public static class Patch_PawnGenerator_GenerateBodyType
+	//{
+	//	[HarmonyPriority(Priority.Last)]
+	//	[HarmonyPostfix]
+	//	public static void Patch(Pawn pawn, PawnGenerationRequest request)
+	//	{
+	//		if (pawn == null)
+	//			return;
 
-			Settings.GetState(pawn, out Settings.State global, out Settings.State state);
+	//		Settings.GetState(pawn, out Settings.State global, out Settings.State state);
 
-			if (!Settings.Bool(global, state, BodyWindow.FilterBody))
-				return;
+	//		if (!Settings.Bool(global, state, BodyWindow.FilterBody))
+	//			return;
 
-			bool is_global = Settings.IsGlobal(state, BodyWindow.FilterBody);
-			BodyTypeDef type = pawn.story.bodyType;
+	//		bool isGlobal = Settings.IsGlobal(state, BodyWindow.FilterBody);
+	//		BodyTypeDef type = pawn.story.bodyType;
 
-			if (type.CPGEnabled(global, state, is_global))
-				return;
-
-
-			// Try complying with the vanilla body type generation first.
-
-			BodyTypeDef filtered_vanilla_body =
-				GetBodyTypeFor(
-					pawn,
-					global,
-					state,
-					is_global
-				);
-
-			if (filtered_vanilla_body != null)
-			{
-				pawn.story.bodyType = filtered_vanilla_body;
-				return;
-			}
+	//		if (type.CPGEnabled(global, state, isGlobal))
+	//			return;
 
 
-			// Just pick a random body type, except the Biotech stuff.
+	//		// Try complying with the vanilla body type generation first.
 
-			bool forced_random =
-				Tools
-				.AllCPGAdultBodyTypes(global, state, is_global)
-				.TryRandomElement(out BodyTypeDef forced_random_body);
+	//		BodyTypeDef filteredVanillaBody =
+	//			GetBodyTypeFor(
+	//				pawn,
+	//				global,
+	//				state,
+	//				isGlobal
+	//			);
 
-			if (forced_random)
-			{
-				pawn.story.bodyType = forced_random_body;
-				return;
-			}
+	//		if (filteredVanillaBody != null)
+	//		{
+	//			pawn.story.bodyType = filteredVanillaBody;
+	//			return;
+	//		}
 
-			Log.Warning(
-				"[CustomPawnGeneration] A pawn's body type was not filtered properly! " +
-				"You may be blocking too many body types."
-			);
-		}
 
-		/// <summary>
-		/// A filtered version of the vanilla `GetBodyTypeFor` function,
-		/// with respect to the Biotech `DevelopmentalStage`.
-		/// </summary>
-		public static BodyTypeDef GetBodyTypeFor
-			(Pawn pawn,
-			Settings.State global,
-			Settings.State state,
-			bool is_global)
-		{
-			if (ModsConfig.BiotechActive && pawn.DevelopmentalStage.Juvenile())
-			{
-				if (pawn.DevelopmentalStage == DevelopmentalStage.Baby)
-					return BodyTypeDefOf.Baby;
+	//		// Just pick a random body type, except the Biotech stuff.
 
-				return BodyTypeDefOf.Child;
-			}
+	//		bool forcedRandom =
+	//			Tools
+	//			.AllCPGAdultBodyTypes(global, state, isGlobal)
+	//			.TryRandomElement(out BodyTypeDef forcedRandomBody);
 
-			if (ModsConfig.BiotechActive && pawn.genes != null)
-			{
-				HashSet<BodyTypeDef> bodyTypes = new HashSet<BodyTypeDef>();
-				List<Gene> genesListForReading = pawn.genes.GenesListForReading;
+	//		if (forcedRandom)
+	//		{
+	//			pawn.story.bodyType = forcedRandomBody;
+	//			return;
+	//		}
 
-				for (int i = 0; i < genesListForReading.Count; i++)
-					if (genesListForReading[i].def.bodyType != null)
-					{
-						BodyTypeDef bodyType =
-							genesListForReading[i]
-							.def
-							.bodyType
-							.Value
-							.ToBodyType(pawn);
+	//		Log.Warning(
+	//			"[CustomPawnGeneration] A pawn's body type was not filtered properly! " +
+	//			"You may be blocking too many body types."
+	//		);
+	//	}
 
-						if (bodyType.CPGEnabled(global, state, is_global))
-							bodyTypes.Add(bodyType);
-					}
+	//	/// <summary>
+	//	/// A filtered version of the vanilla `GetBodyTypeFor` function,
+	//	/// with respect to the Biotech `DevelopmentalStage`.
+	//	/// </summary>
+	//	public static BodyTypeDef GetBodyTypeFor
+	//		(Pawn pawn,
+	//		Settings.State global,
+	//		Settings.State state,
+	//		bool isGlobal)
+	//	{
+	//		if (ModsConfig.BiotechActive && pawn.DevelopmentalStage.Juvenile())
+	//		{
+	//			if (pawn.DevelopmentalStage == DevelopmentalStage.Baby)
+	//				return BodyTypeDefOf.Baby;
 
-				if (bodyTypes.TryRandomElement(out BodyTypeDef result))
-					return result;
-			}
+	//			return BodyTypeDefOf.Child;
+	//		}
 
-			if (pawn.story.Adulthood != null)
-			{
-				BodyTypeDef body_type = pawn.story.Adulthood.BodyTypeFor(pawn.gender);
+	//		if (ModsConfig.BiotechActive && pawn.genes != null)
+	//		{
+	//			HashSet<BodyTypeDef> bodyTypes = new HashSet<BodyTypeDef>();
+	//			List<Gene> genesListForReading = pawn.genes.GenesListForReading;
 
-				if (body_type.CPGEnabled(global, state, is_global))
-					return body_type;
-			}
+	//			for (int i = 0; i < genesListForReading.Count; i++)
+	//				if (genesListForReading[i].def.bodyType != null)
+	//				{
+	//					BodyTypeDef bodyType =
+	//						genesListForReading[i]
+	//						.def
+	//						.bodyType
+	//						.Value
+	//						.ToBodyType(pawn);
 
-			bool thin = BodyTypeDefOf.Thin.CPGEnabled(global, state, is_global);
+	//					if (bodyType.CPGEnabled(global, state, isGlobal))
+	//						bodyTypes.Add(bodyType);
+	//				}
 
-			if (thin && Rand.Value < 0.5f)
-				return BodyTypeDefOf.Thin;
+	//			if (bodyTypes.TryRandomElement(out BodyTypeDef result))
+	//				return result;
+	//		}
 
-			if (BodyTypeDefOf.Male.CPGEnabled(global, state, is_global) &&
-				pawn.gender != Gender.Female)
-				return BodyTypeDefOf.Male;
+	//		if (pawn.story.Adulthood != null)
+	//		{
+	//			BodyTypeDef bodyType = pawn.story.Adulthood.BodyTypeFor(pawn.gender);
 
-			if (BodyTypeDefOf.Female.CPGEnabled(global, state, is_global))
-				return BodyTypeDefOf.Female;
+	//			if (bodyType.CPGEnabled(global, state, isGlobal))
+	//				return bodyType;
+	//		}
 
-			return null;
-		}
-	}
+	//		return pawn.RandomBodyType(
+	//			global,
+	//			state,
+	//			isGlobal
+	//		);
+	//	}
+	//}
 
 	[HarmonyPatch(typeof(PawnGenerator), "GenerateTraits")]
 	public static class Patch_PawnGenerator_GenerateTraits
 	{
-		public static Dictionary<Pawn, ushort> pending = new Dictionary<Pawn, ushort>();
+		public static Dictionary<Pawn, ushort> traitsPending = new Dictionary<Pawn, ushort>();
 
 		[HarmonyPriority(Priority.Last)]
 		[HarmonyPrefix]
@@ -490,7 +521,7 @@ namespace RW_CustomPawnGeneration
 			if (pawn == null)
 				return;
 
-			pending[pawn] = 0;
+			traitsPending[pawn] = 0;
 		}
 
 		[HarmonyPriority(Priority.Last)]
@@ -500,7 +531,7 @@ namespace RW_CustomPawnGeneration
 			if (pawn == null)
 				return;
 
-			pending.Remove(pawn);
+			traitsPending.Remove(pawn);
 
 			Settings.GetState(pawn, out Settings.State global, out Settings.State state);
 
@@ -544,7 +575,7 @@ namespace RW_CustomPawnGeneration
 			if (___pawn == null)
 				return true;
 
-			if (!Patch_PawnGenerator_GenerateTraits.pending.ContainsKey(___pawn))
+			if (!Patch_PawnGenerator_GenerateTraits.traitsPending.ContainsKey(___pawn))
 				return true;
 
 			Settings.GetState(___pawn, out Settings.State global, out Settings.State state);
@@ -552,23 +583,174 @@ namespace RW_CustomPawnGeneration
 			if (!Settings.Bool(global, state, TraitsWindow.OverrideTraits))
 				return true;
 
-			if (Patch_PawnGenerator_GenerateTraits.pending[___pawn] > MAX_STACK)
+			if (Patch_PawnGenerator_GenerateTraits.traitsPending[___pawn] > MAX_STACK)
 			{
 				Log.Warning("[CustomPawnGeneration] Rolled for traits too many times! Try not to block/force too many of them!");
-				Patch_PawnGenerator_GenerateTraits.pending.Remove(___pawn);
+				Patch_PawnGenerator_GenerateTraits.traitsPending.Remove(___pawn);
 				return true;
 			}
 
 			bool IsGlobal = Settings.IsGlobal(state, TraitsWindow.OverrideTraits);
 
-			Patch_PawnGenerator_GenerateTraits.pending[___pawn]++;
+			Patch_PawnGenerator_GenerateTraits.traitsPending[___pawn]++;
 			return Settings.Int(global, state, $"{TraitsWindow.Trait}|{trait.def.defName}|{trait.Degree}", IsGlobal) == 0;
+		}
+	}
+
+	[HarmonyPatch(typeof(PawnGenerator), "TryGenerateNewPawnInternal")]
+	public static class Patch_PawnGenerator_TryGenerateNewPawnInternal
+	{
+		public static Dictionary<PawnGenerationRequest, Pawn> genderPending = new Dictionary<PawnGenerationRequest, Pawn>();
+		public static HashSet<PawnGenerationRequest> genderChanges = new HashSet<PawnGenerationRequest>();
+
+		public static void DiscardGeneratedPawn(Pawn pawn)
+		{
+			MethodInfo method = AccessTools.Method(
+				typeof(PawnGenerator),
+				"DiscardGeneratedPawn"
+			);
+
+			if (method == null)
+				return;
+
+			IList pawnsBeingGenerated = Tools.PawnsBeingGenerated;
+			object dummy = Patch_PawnGenerator_DiscardGeneratedPawn.dummy;
+			bool validDummy = dummy != null && !pawnsBeingGenerated.Contains(dummy);
+
+			if (validDummy)
+				pawnsBeingGenerated.Add(dummy);
+
+			method.Invoke(null, new object[] { pawn });
+
+			if (validDummy)
+				pawnsBeingGenerated.Remove(dummy);
+		}
+
+		public static void VerifyBodyType(Pawn pawn)
+		{
+			if (ModsConfig.BiotechActive && pawn.DevelopmentalStage.Juvenile())
+				return;
+
+			Settings.GetState(pawn, out Settings.State global, out Settings.State state);
+
+			if (!Settings.Bool(global, state, BodyWindow.FilterBody))
+				return;
+
+			bool isGlobal = Settings.IsGlobal(state, BodyWindow.FilterBody);
+
+			if (pawn.story.bodyType.CPGEnabled(
+				global,
+				state,
+				isGlobal
+			))
+				return;
+
+			pawn.story.bodyType = pawn.RandomBodyType(global, state, isGlobal);
+		}
+
+		[HarmonyPriority(Priority.First)]
+		[HarmonyPostfix]
+		public static void Postfix(ref PawnGenerationRequest request, ref Pawn __result, ref string error)
+		{
+			if (__result != null)
+			{
+				VerifyBodyType(__result);
+
+				return;
+			}
+
+			if (!genderPending.ContainsKey(request))
+				return;
+
+			bool genderChanged = genderChanges.Contains(request);
+			Pawn pawn = genderPending[request];
+
+			genderPending.Remove(request);
+			genderChanges.Remove(request);
+
+
+			if (!genderChanged)
+			{
+				DiscardGeneratedPawn(pawn);
+				return;
+			}
+
+			if (error != "Generated pawn with disabled requiredWorkTags.")
+			{
+				DiscardGeneratedPawn(pawn);
+				return;
+			}
+
+			Log.Warning($"[CustomPawnGeneration] '{pawn.Name}' was generated with an error '{error}'!");
+
+			__result = pawn;
+			error = null;
+		}
+	}
+
+	[HarmonyPatch(typeof(PawnGenerator), "DiscardGeneratedPawn")]
+	public static class Patch_PawnGenerator_DiscardGeneratedPawn
+	{
+		public static object dummy = null;
+
+		[HarmonyPriority(Priority.First)]
+		[HarmonyPrefix]
+		public static bool Prefix(Pawn pawn)
+		{
+			if (Patch_PawnGenerator_TryGenerateNewPawnInternal.genderPending.ContainsValue(pawn))
+			{
+				IList pawnsBeingGenerated = Tools.PawnsBeingGenerated;
+
+				if (pawnsBeingGenerated.Count > 0)
+					dummy = pawnsBeingGenerated[0];
+
+				return false;
+			}
+
+			return true;
 		}
 	}
 
 	[HarmonyPatch(typeof(PawnGenerator), "GeneratePawn", typeof(PawnGenerationRequest))]
 	public static class Patch_PawnGenerator_GeneratePawn
 	{
+		[HarmonyPriority(Priority.First)]
+		[HarmonyPrefix]
+		public static void Prefix(ref PawnGenerationRequest request)
+		{
+			if (!request.KindDef.RaceProps.hasGenders)
+				return;
+
+			Settings.GetStateMale(request.KindDef.race, out Settings.State global, out Settings.State state);
+
+			if (!Settings.Bool(global, state, GenderWindow.OverrideGender))
+				return;
+
+			if (!Settings.Bool(global, state, GenderWindow.UnforcedGender) &&
+				request.FixedGender != null)
+				return;
+
+			bool isGlobal = Settings.IsGlobal(state, GenderWindow.OverrideGender);
+			int value = Settings.Int(global, state, GenderWindow.GenderSlider, isGlobal);
+			Gender gender;
+
+			if (value == 100)
+				gender = Gender.Female;
+			else if (value == 0)
+				gender = Gender.Male;
+			else if (Rand.Value < value / 100f)
+				gender = Gender.Female;
+			else
+				gender = Gender.Male;
+
+			if (request.FixedGender == gender)
+				return;
+
+			request.FixedGender = gender;
+
+			Patch_PawnGenerator_TryGenerateNewPawnInternal.genderChanges.Add(request);
+		}
+
 		[HarmonyPostfix, HarmonyPriority(Priority.Last)]
 		public static void Patch(Pawn __result, PawnGenerationRequest request)
 		{
