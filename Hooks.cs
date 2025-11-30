@@ -394,6 +394,32 @@ namespace RW_CustomPawnGeneration
 		}
 	}
 
+	[HarmonyPatch(typeof(PawnGenerator), "GenerateGenes")]
+	public static class Patch_GeneUtility_ToBodyType
+	{
+		[HarmonyPriority(Priority.Last)]
+		[HarmonyPostfix]
+		public static void Postfix(Pawn pawn, XenotypeDef xenotype, PawnGenerationRequest request)
+		{
+			pawn.RandomizeBodyType();
+		}
+	}
+
+	[HarmonyPatch(typeof(PawnGenerator), "GetBodyTypeFor")]
+	public static class Patch_PawnGenerator_GetBodyTypeFor
+	{
+		[HarmonyPriority(Priority.Last)]
+		[HarmonyPostfix]
+		public static void Patch(Pawn pawn, ref BodyTypeDef __result)
+		{
+			if (ModsConfig.BiotechActive && pawn.DevelopmentalStage.Juvenile())
+				// Biotech stuff.
+				return;
+
+			pawn.RandomizeBodyType();
+		}
+	}
+
 	//[HarmonyPatch(typeof(PawnGenerator), "GenerateBodyType")]
 	//public static class Patch_PawnGenerator_GenerateBodyType
 	//{
@@ -404,45 +430,27 @@ namespace RW_CustomPawnGeneration
 	//		if (pawn == null)
 	//			return;
 
+	//		if (ModsConfig.BiotechActive && pawn.DevelopmentalStage.Juvenile())
+	//			// Biotech stuff.
+	//			return;
+
 	//		Settings.GetState(pawn, out Settings.State global, out Settings.State state);
 
 	//		if (!Settings.Bool(global, state, BodyWindow.FilterBody))
 	//			return;
 
 	//		bool isGlobal = Settings.IsGlobal(state, BodyWindow.FilterBody);
-	//		BodyTypeDef type = pawn.story.bodyType;
 
-	//		if (type.CPGEnabled(global, state, isGlobal))
+	//		if (pawn.story.bodyType.CPGEnabled(global, state, isGlobal))
+	//			// Current body type is good.
 	//			return;
 
+	//		BodyTypeDef type = pawn.RandomBodyType(global, state, isGlobal);
 
-	//		// Try complying with the vanilla body type generation first.
-
-	//		BodyTypeDef filteredVanillaBody =
-	//			GetBodyTypeFor(
-	//				pawn,
-	//				global,
-	//				state,
-	//				isGlobal
-	//			);
-
-	//		if (filteredVanillaBody != null)
+	//		if (type != null)
 	//		{
-	//			pawn.story.bodyType = filteredVanillaBody;
-	//			return;
-	//		}
-
-
-	//		// Just pick a random body type, except the Biotech stuff.
-
-	//		bool forcedRandom =
-	//			Tools
-	//			.AllCPGAdultBodyTypes(global, state, isGlobal)
-	//			.TryRandomElement(out BodyTypeDef forcedRandomBody);
-
-	//		if (forcedRandom)
-	//		{
-	//			pawn.story.bodyType = forcedRandomBody;
+	//			request.ForceBodyType =
+	//				pawn.story.bodyType = type;
 	//			return;
 	//		}
 
@@ -626,38 +634,12 @@ namespace RW_CustomPawnGeneration
 				pawnsBeingGenerated.Remove(dummy);
 		}
 
-		public static void VerifyBodyType(Pawn pawn)
-		{
-			if (ModsConfig.BiotechActive && pawn.DevelopmentalStage.Juvenile())
-				return;
-
-			Settings.GetState(pawn, out Settings.State global, out Settings.State state);
-
-			if (!Settings.Bool(global, state, BodyWindow.FilterBody))
-				return;
-
-			bool isGlobal = Settings.IsGlobal(state, BodyWindow.FilterBody);
-
-			if (pawn.story.bodyType.CPGEnabled(
-				global,
-				state,
-				isGlobal
-			))
-				return;
-
-			pawn.story.bodyType = pawn.RandomBodyType(global, state, isGlobal);
-		}
-
 		[HarmonyPriority(Priority.First)]
 		[HarmonyPostfix]
 		public static void Postfix(ref PawnGenerationRequest request, ref Pawn __result, ref string error)
 		{
 			if (__result != null)
-			{
-				VerifyBodyType(__result);
-
 				return;
-			}
 
 			if (!genderPending.ContainsKey(request))
 				return;

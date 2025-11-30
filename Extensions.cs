@@ -24,7 +24,34 @@ namespace RW_CustomPawnGeneration
 			);
 		}
 
-		public static BodyTypeDef RandomBodyType
+		public static void RandomizeBodyType(this Pawn pawn)
+		{
+			Settings.GetState(pawn, out Settings.State global, out Settings.State state);
+
+			if (!Settings.Bool(global, state, BodyWindow.FilterBody))
+				return;
+
+			bool isGlobal = Settings.IsGlobal(state, BodyWindow.FilterBody);
+
+			if (pawn.story.bodyType.CPGEnabled(global, state, isGlobal))
+				// Current body type is good.
+				return;
+
+			BodyTypeDef type = pawn.GetRandomBodyType(global, state, isGlobal);
+
+			if (type != null)
+			{
+				pawn.story.bodyType = type;
+				return;
+			}
+
+			Log.Warning(
+				"[CustomPawnGeneration] A pawn's body type was not filtered properly! " +
+				"You may be blocking too many body types."
+			);
+		}
+
+		public static BodyTypeDef GetRandomBodyType
 			(this Pawn pawn,
 			Settings.State global,
 			Settings.State state,
