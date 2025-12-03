@@ -26,6 +26,10 @@ namespace RW_CustomPawnGeneration
 
 		public static void RandomizeBodyType(this Pawn pawn)
 		{
+			if (ModsConfig.BiotechActive && pawn.DevelopmentalStage.Juvenile())
+				// Biotech stuff.
+				return;
+
 			Settings.GetState(pawn, out Settings.State global, out Settings.State state);
 
 			if (!Settings.Bool(global, state, BodyWindow.FilterBody))
