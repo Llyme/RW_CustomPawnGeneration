@@ -412,10 +412,6 @@ namespace RW_CustomPawnGeneration
 		[HarmonyPostfix]
 		public static void Patch(Pawn pawn, ref BodyTypeDef __result)
 		{
-			if (ModsConfig.BiotechActive && pawn.DevelopmentalStage.Juvenile())
-				// Biotech stuff.
-				return;
-
 			pawn.RandomizeBodyType();
 		}
 	}
