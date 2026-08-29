@@ -58,7 +58,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Kinds\TextKind.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Hooks.cs" />
     <Compile Include="RW_CustomPawnGeneration.cs" />

@@ -1,16 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
-    <CPG.CPGName.Label>Custom Pawn Generation</CPG.CPGName.Label>
-    <CPG.Reset.Label>Reset</CPG.Reset.Label>
-    <CPG.ResetAll.Label>Reset All</CPG.ResetAll.Label>
-    <CPG.Yes.Label>Yes</CPG.Yes.Label>
-    <CPG.No.Label>No</CPG.No.Label>
-    <CPG.CopyTo.Label>Copy to...</CPG.CopyTo.Label>
-    <CPG.Edit.Label>Edit</CPG.Edit.Label>
-    <CPG.ShowConfig.Label>Show Config</CPG.ShowConfig.Label>
-    <CPG.AdvancedMode.Label>Advanced Settings</CPG.AdvancedMode.Label>
-    <CPG.UseRaceSpecific.Label>Use Race Specific Options</CPG.UseRaceSpecific.Label>
-    <CPG.CustomAging.Label>Enable Custom Aging Ticks</CPG.CustomAging.Label>
-    <CPG.UngenderedParent.Label>Remove Parent Gender Restrictions</CPG.UngenderedParent.Label>
-    <CPG.GlobalConfig.Label>[Global Config]</CPG.GlobalConfig.Label>
-    <CPG.Search.Label>Search&#32;</CPG.Search.Label>
+    <CPG_CPGName_Label>Custom Pawn Generation</CPG_CPGName_Label>
+    <CPG_Reset_Label>Reset</CPG_Reset_Label>
+    <CPG_ResetAll_Label>Reset All</CPG_ResetAll_Label>
+    <CPG_Yes_Label>Yes</CPG_Yes_Label>
+    <CPG_No_Label>No</CPG_No_Label>
+    <CPG_CopyTo_Label>Copy to...</CPG_CopyTo_Label>
+    <CPG_Edit_Label>Edit</CPG_Edit_Label>
+    <CPG_ShowConfig_Label>Show Config</CPG_ShowConfig_Label>
+    <CPG_AdvancedMode_Label>Advanced Settings</CPG_AdvancedMode_Label>
+    <CPG_UseRaceSpecific_Label>Use Race Specific Options</CPG_UseRaceSpecific_Label>
+    <CPG_CustomAging_Label>Enable Custom Aging Ticks</CPG_CustomAging_Label>
+    <CPG_UngenderedParent_Label>Remove Parent Gender Restrictions</CPG_UngenderedParent_Label>
+    <CPG_GlobalConfig_Label>[Global Config]</CPG_GlobalConfig_Label>
+    <CPG_Search_Label>Search&#32;</CPG_Search_Label>
 </LanguageData>

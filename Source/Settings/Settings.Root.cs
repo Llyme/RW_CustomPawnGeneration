@@ -179,7 +179,7 @@ namespace RW_CustomPawnGeneration
 					Strings.Labels.No
 				));
 
-			Search_Buffer = gui.TextEntryLabeled(Strings.Labels.Search , Search_Buffer);
+			Search_Buffer = gui.TextEntryLabeled(Strings.Labels.Search, Search_Buffer);
 
 			float height = gui.CurHeight;
 

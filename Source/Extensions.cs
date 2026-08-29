@@ -7,13 +7,6 @@ namespace RW_CustomPawnGeneration
 {
 	public static class Extensions
 	{
-		public static string Translate(
-			this string text,
-			TextKind kind,
-			params NamedArgument[] args
-		) =>
-			$"CPG.{text}.{kind}".Translate(args);
-
 		public static bool CPGEnabled(
 			this BodyTypeDef bodyType,
 			Settings.State global,

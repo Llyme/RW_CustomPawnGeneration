@@ -17,54 +17,54 @@ namespace RW_CustomPawnGeneration
 
 		public static class Labels
 		{
-			public static string CPGName => "CPGName".Translate(TextKind.Label);
+			public static string CPGName => "CPG_CPGName_Label".Translate();
 
-			public static string Reset => "Reset".Translate(TextKind.Label);
+			public static string Reset => "CPG_Reset_Label".Translate();
 
-			public static string ResetAll => "ResetAll".Translate(TextKind.Label);
+			public static string ResetAll => "CPG_ResetAll_Label".Translate();
 
-			public static string Yes => "Yes".Translate(TextKind.Label);
+			public static string Yes => "CPG_Yes_Label".Translate();
 
-			public static string No => "No".Translate(TextKind.Label);
+			public static string No => "CPG_No_Label".Translate();
 
-			public static string CopyTo => "Copy to...".Translate(TextKind.Label);
+			public static string CopyTo => "CPG_CopyTo_Label".Translate();
 
-			public static string Edit => "Edit".Translate(TextKind.Label);
+			public static string Edit => "CPG_Edit_Label".Translate();
 
-			public static string ShowConfig => "ShowConfig".Translate(TextKind.Label);
+			public static string ShowConfig => "CPG_ShowConfig_Label".Translate();
 
-			public static string AdvancedMode => "AdvancedMode".Translate(TextKind.Label);
+			public static string AdvancedMode => "CPG_AdvancedMode_Label".Translate();
 
-			public static string UseRaceSpecific => "UseRaceSpecific".Translate(TextKind.Label);
+			public static string UseRaceSpecific => "CPG_UseRaceSpecific_Label".Translate();
 
-			public static string CustomAging => "CustomAging".Translate(TextKind.Label);
+			public static string CustomAging => "CPG_CustomAging_Label".Translate();
 
-			public static string UngenderedParent => "UngenderedParent".Translate(TextKind.Label);
+			public static string UngenderedParent => "CPG_UngenderedParent_Label".Translate();
 
-			public static string GlobalConfig => "GlobalConfig".Translate(TextKind.Label);
+			public static string GlobalConfig => "CPG_GlobalConfig_Label".Translate();
 
-			public static string Search => "Search".Translate(TextKind.Label);
+			public static string Search => "CPG_Search_Label".Translate();
 		}
 
 		public static class Descriptions
 		{
-			public static string AdvancedMode => "AdvancedMode".Translate(TextKind.Description);
+			public static string AdvancedMode => "CPG_AdvancedMode_Description".Translate();
 
-			public static string ResetAll => "ResetAll".Translate(TextKind.Description);
+			public static string ResetAll => "CPG_ResetAll_Description".Translate();
 
-			public static string UseRaceSpecific => "UseRaceSpecific".Translate(TextKind.Description);
+			public static string UseRaceSpecific => "CPG_UseRaceSpecific_Description".Translate();
 
-			public static string CustomAging => "CustomAging".Translate(TextKind.Description);
+			public static string CustomAging => "CPG_CustomAging_Description".Translate();
 
-			public static string GlobalConfig => "GlobalConfig".Translate(TextKind.Description);
+			public static string GlobalConfig => "CPG_GlobalConfig_Description".Translate();
 
-			public static string UngenderedParent => "UngenderedParent".Translate(TextKind.Description);
+			public static string UngenderedParent => "CPG_UngenderedParent_Description".Translate();
 		}
 
 		public static class Messages
 		{
 			public static string Reset(NamedArgument name) =>
-				"Reset".Translate(TextKind.Message, name);
+				"CPG_Reset_Message".Translate(name);
 		}
 	}
 }
