@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+	<packageId>Nyan.CustomPawnGeneration</packageId>
+    <name>Custom Pawn Generation</name>
+    <author>Nyan</author>
+	<supportedVersions>
+		<li>1.3</li>
+		<li>1.4</li>
+		<li>1.5</li>
+		<li>1.6</li>
+	</supportedVersions>
+	<loadAfter>
+		<li>brrainz.harmony</li>
+		<li>Ludeon.RimWorld</li>
+	</loadAfter>
+	<modDependencies>
+		<li>
+			<packageId>brrainz.harmony</packageId>
+			<displayName>Harmony</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+			<downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+		</li>
+	</modDependencies>
+    <description>Allows you to change how pawns are generated.
+
+[b]Gender[/b]
+[list]
+[*] [b]Separate Gender Stats[/b]: Allows you to have 2 separate configurations for males and females.
+[*] [b]Override Forced Gender[/b]: Ignores backstory-forced and parent-forced gender. May cause minor bugs, such as single parents.
+[*] [b]Override Gender Frequency[/b]: Changes which gender is more common, or have the entire game with only 1 gender.
+[/list]
+
+[b]Age[/b]
+[list]
+[*] [b]Preserve Age Curve[/b]: If there is a minimum or maximum age set, this will attempt to mimic the vanilla age distribution, such that it won't be dominated by extremely young/old pawns.
+[*] [b]Add Excess Biological Age as Chronological Age[/b]: When maximum age is set and a pawn exceeds the limit, it increases the chronological age instead. This will still trigger a birthday event.
+[*] [b]Has Maximum Age[/b]: Adds a maximum age limit. This can still trigger a birthday event.
+[*] [b]Has Minimum Age[/b]: When a pawn is generated, their age will not be lower than this number.
+[*] [b]Do Not Affect Pawns Below Minimum Age[/b]: If the pawn is supposed to spawn below the minimum age (toddler,) they will not be affected by the minimum age limit.
+[*] [b]Override Age Tick[/b]: Allows increasing aging speed. Setting to 0 will completely disable aging.
+[/list]
+
+[b]Body Type[/b]
+[list]
+[*] [b]Filter Body Types[/b]: Allows preventing body types from being chosen. A random allowed body type will be chosen when a pawn is generated with an undesired body type. Must have at least 1 body type allowed, otherwise nothing happens.
+[/list]
+
+[b]Traits[/b]
+[list]
+[*] [b]Forced[/b]: Allows a trait to be forced to every single pawn generated.
+[*] [b]Blocked[/b]: Prevents this trait from appearing on any pawn.
+[/list]
+
+[b]Advanced Settings[/b]
+[list]
+[*] Allows you to set a separate configuration for each race.
+[*] Unchecking the `Advanced Settings` checkbox does not disable this, it only makes the UI less complicated.
+[*] When unchecked, all changes go to the `[Global Config]` configuration.
+[/list]</description>
+</ModMetaData>

@@ -1,0 +1,170 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using Verse;
+
+namespace RW_CustomPawnGeneration
+{
+	public class RaceWindow : Window
+	{
+		public const string HEADER =
+			"Races";
+
+		public const string DESCRIPTION =
+			"Select the race(s) you want to edit.";
+
+		public const string ALL_RACES =
+			"All Races";
+		public const string NO_RACES =
+			"You need to select at least 1 race.";
+		public const string COMMA =
+			", ";
+
+		public static float HeaderWidth = Text.CalcSize(HEADER).x / 2f;
+
+		public static Vector2 ScrollVector = Vector2.zero;
+		public static Rect ScrollRect = Rect.zero;
+
+		public static HashSet<BodyDef> Selected = null;
+		public static string Label = ALL_RACES;
+
+		public override Vector2 InitialSize
+		{
+			get
+			{
+				return new Vector2(480f, 640f);
+			}
+		}
+
+		public RaceWindow()
+		{
+			doCloseButton = true;
+			doCloseX = true;
+			absorbInputAroundWindow = true;
+			forcePause = true;
+
+			Find.WindowStack.Add(this);
+		}
+
+		public override void DoWindowContents(Rect inRect)
+		{
+			Listing_Standard gui = new Listing_Standard();
+
+			gui.Begin(inRect);
+			{
+				float width = gui.ColumnWidth;
+
+				Text.Anchor = TextAnchor.UpperCenter;
+				Text.Font = GameFont.Medium;
+				{
+					gui.Label(HEADER);
+				}
+				Text.Anchor = TextAnchor.UpperLeft;
+				Text.Font = GameFont.Tiny;
+				{
+					gui.Label(DESCRIPTION);
+				}
+				Text.Font = GameFont.Small;
+
+				gui.Gap(20f);
+
+				gui.ColumnWidth = 120f;
+				{
+					if (gui.ButtonText("Select All"))
+					{
+						Label = ALL_RACES;
+						Selected = null;
+					}
+
+					if (gui.ButtonText("Deselect All"))
+					{
+						Label = NO_RACES;
+
+						if (Selected != null)
+							Selected.Clear();
+						else
+							Selected = new HashSet<BodyDef>();
+					}
+				}
+				gui.ColumnWidth = width - 20f;
+
+				float height = gui.CurHeight + 10f;
+				gui.BeginScrollView(
+					new Rect(
+						0f,
+						height,
+						width,
+						inRect.height - height - 50f
+					),
+					ref ScrollVector,
+					ref ScrollRect
+				);
+				{
+					foreach (BodyDef def in DefDatabase<BodyDef>.AllDefs)
+					{
+						bool prev = Selected == null || Selected.Contains(def);
+						bool next = prev;
+
+						gui.CheckboxLabeled(def.defName, ref next, def.LabelCap);
+
+						if (prev != next)
+							if (next)
+							{
+								if (Selected.Count == DefDatabase<BodyDef>.AllDefs.ToList().Count - 1)
+								{
+									Selected = null;
+									Label = ALL_RACES;
+								}
+								else
+								{
+									Selected.Add(def);
+									ReLabel();
+								}
+							}
+							else if (Selected != null)
+							{
+								Selected.Remove(def);
+
+								if (Selected.Count == 0)
+									Label = NO_RACES;
+								else
+									ReLabel();
+							}
+							else
+							{
+								Selected = new HashSet<BodyDef>();
+
+								foreach (BodyDef def0 in DefDatabase<BodyDef>.AllDefs)
+									if (def0 != def)
+										Selected.Add(def0);
+
+								ReLabel();
+							}
+					}
+				}
+				gui.EndScrollView(ref ScrollRect);
+			}
+			gui.End();
+		}
+
+		public static void ReLabel()
+		{
+			int i = 0;
+			Label = string.Empty;
+
+			foreach (BodyDef body in Selected)
+			{
+				Label += body.defName + COMMA;
+				i++;
+
+				if (i > 2)
+					break;
+			}
+
+			if (Selected.Count > 3)
+				Label += $"and {Selected.Count - 3} other race{(Selected.Count - 3 > 1 ? "s" : "")}.";
+			else
+				Label = Label.Substring(0, Label.Length - 2);
+		}
+	}
+}

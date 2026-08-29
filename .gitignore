@@ -1,5 +1,7 @@
 
-Build/*
-obj/*
-.vscode/*
-.vs/*
+.vscode
+source/Build
+source/obj
+source/.vs
+Assemblies
+About/PublishedFileId.txt

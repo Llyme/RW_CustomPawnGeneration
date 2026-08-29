@@ -1,0 +1,16 @@
+<LanguageData>
+    <CPG.CPGName.Label>Custom Pawn Generation</CPG.CPGName.Label>
+    <CPG.Reset.Label>Reset</CPG.Reset.Label>
+    <CPG.ResetAll.Label>Reset All</CPG.ResetAll.Label>
+    <CPG.Yes.Label>Yes</CPG.Yes.Label>
+    <CPG.No.Label>No</CPG.No.Label>
+    <CPG.CopyTo.Label>Copy to...</CPG.CopyTo.Label>
+    <CPG.Edit.Label>Edit</CPG.Edit.Label>
+    <CPG.ShowConfig.Label>Show Config</CPG.ShowConfig.Label>
+    <CPG.AdvancedMode.Label>Advanced Settings</CPG.AdvancedMode.Label>
+    <CPG.UseRaceSpecific.Label>Use Race Specific Options</CPG.UseRaceSpecific.Label>
+    <CPG.CustomAging.Label>Enable Custom Aging Ticks</CPG.CustomAging.Label>
+    <CPG.UngenderedParent.Label>Remove Parent Gender Restrictions</CPG.UngenderedParent.Label>
+    <CPG.GlobalConfig.Label>[Global Config]</CPG.GlobalConfig.Label>
+    <CPG.Search.Label>Search&#32;</CPG.Search.Label>
+</LanguageData>
