@@ -5,8 +5,6 @@ namespace RW_CustomPawnGeneration
 {
 	public abstract class BaseWindow : Window
 	{
-		public const string SEARCH = "Search ";
-
 		public ThingDef race;
 		public Gender? gender;
 		public bool hasGenders = true;

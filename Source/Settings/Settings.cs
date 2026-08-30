@@ -148,7 +148,7 @@ namespace RW_CustomPawnGeneration
 			if (pawn.gender != Gender.Female)
 				return;
 
-			if (!Bool(global, state, GenderWindow.SeparateGender))
+			if (!Bool(global, state, Strings.Keys.SeparateGender))
 				return;
 
 			global = State.FEMALE;
@@ -173,7 +173,7 @@ namespace RW_CustomPawnGeneration
 
 			if (gender != null &&
 				gender == Gender.Female &&
-				Bool(global, state, GenderWindow.SeparateGender))
+				Bool(global, state, Strings.Keys.SeparateGender))
 			{
 				global = State.FEMALE;
 				state = new State(race, gender.Value);

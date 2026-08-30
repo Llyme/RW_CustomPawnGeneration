@@ -1,4 +1,4 @@
-﻿using RimWorld;
+using RimWorld;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -7,32 +7,12 @@ namespace RW_CustomPawnGeneration
 {
 	public class TraitsWindow : BaseWindow
 	{
-		public static string[] COMBO_TRAITS = new string[]
+		public static string[] COMBO_TRAITS => new string[]
 		{
-			"Normal",
-			"Blocked",
-			"Forced"
+			Strings.Labels.Traits.Normal,
+			Strings.Labels.Traits.Blocked,
+			Strings.Labels.Traits.Forced
 		};
-
-		public const string DESCRIPTION_TRAITS_BLOCKED =
-			"* If a pawn rolls for a blocked/forced trait, it will re-roll again.\n" +
-			"* The game may spam a lot of '[Pawn] already has [Trait]' messages in the console.\n" +
-			"* The forced traits are added after generating traits, " +
-			"which may exceed max traits.\n" +
-			"* You can force the same trait with varying degrees.\n" +
-			"WARNING: Blocking/Forcing majority of the traits will set the game in a permanent loop, " +
-			"making you unable to play! Try to only block/force less than half of the traits.";
-		public const string DESCRIPTION_OVERRIDE_TRAITS =
-			"Allows blocking traits from appearing in pawns and " +
-			"forcing traits to be distributed to all pawns. " +
-			"Only applies to humans.";
-		public const string DESCRIPTION_RESET =
-			"Do you want to restore all of the default values?";
-
-		public const string OVERRIDE_TRAITS = "Allow Forced/Blocked Traits";
-
-		public const string OverrideTraits = "OverrideTraits";
-		public const string Trait = "Trait";
 
 		public string Search = "";
 
@@ -52,26 +32,26 @@ namespace RW_CustomPawnGeneration
 		{
 			Text.Font = GameFont.Tiny;
 			{
-				gui.Label(DESCRIPTION_TRAITS_BLOCKED);
+				gui.Label(Strings.Descriptions.Traits.Info);
 			}
 			Text.Font = GameFont.Small;
 
 			gui.Gap(10f);
 
-			Tools.GBool(gui, state, OverrideTraits, OVERRIDE_TRAITS, DESCRIPTION_OVERRIDE_TRAITS);
+			Tools.GBool(gui, state, Strings.Keys.OverrideTraits, Strings.Labels.Traits.OverrideTraits, Strings.Descriptions.Traits.OverrideTraits);
 
 			gui.Gap(10f);
 
-			if (!state.GBool(OverrideTraits))
+			if (!state.GBool(Strings.Keys.OverrideTraits))
 				return;
 
-			Search = gui.TextEntryLabeled(SEARCH, Search).ToLower();
+			Search = gui.TextEntryLabeled(Strings.Labels.Search, Search).ToLower();
 
 			gui.Gap(10f);
 
 			if (gui.ButtonText(Strings.Labels.Reset))
 				Find.WindowStack.Add(new Dialog_MessageBox(
-					DESCRIPTION_RESET,
+					Strings.Descriptions.Traits.Reset,
 					Strings.Labels.Yes,
 					() =>
 					{
@@ -79,7 +59,7 @@ namespace RW_CustomPawnGeneration
 							try
 							{
 								foreach (TraitDegreeData data in def.degreeDatas)
-									state.Remove($"{Trait}|{def.defName}|{data.degree}");
+									state.Remove($"{Strings.Keys.Trait}|{def.defName}|{data.degree}");
 							}
 							catch { }
 					},
@@ -89,7 +69,7 @@ namespace RW_CustomPawnGeneration
 
 		public override void Draw_Inside(Rect inRect, Listing_Standard gui)
 		{
-			if (!state.GBool(OverrideTraits))
+			if (!state.GBool(Strings.Keys.OverrideTraits))
 				return;
 
 			IEnumerable<TraitDef> defs = DefDatabase<TraitDef>.AllDefs;
@@ -105,7 +85,7 @@ namespace RW_CustomPawnGeneration
 							ComboWindow.Entry(
 								gui,
 								state,
-								$"{Trait}|{def.defName}|{data.degree}",
+								$"{Strings.Keys.Trait}|{def.defName}|{data.degree}",
 								label,
 								data.description ?? def.description,
 								COMBO_TRAITS

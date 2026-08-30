@@ -5,8 +5,6 @@ namespace RW_CustomPawnGeneration
 {
 	public class HediffWindow : BaseWindow
 	{
-		public const string NO_BODY_PART = "No Body Part";
-
 		public override Vector2 InitialSize
 		{
 			get
@@ -21,7 +19,7 @@ namespace RW_CustomPawnGeneration
 
 		public override void Draw_Inside(Rect inRect, Listing_Standard gui)
 		{
-			if (gui.ButtonText(NO_BODY_PART))
+			if (gui.ButtonText(Strings.Labels.Hediff.NoBodyPart))
 				new BodyPartWindow(null, race, gender);
 
 			foreach (BodyPartRecord part in race.race.body.AllParts)

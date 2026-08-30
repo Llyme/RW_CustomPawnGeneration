@@ -8,11 +8,6 @@ namespace RW_CustomPawnGeneration
 {
 	public class CopyWindow : BaseWindow
 	{
-		public const string DESCRIPTION =
-			"* Does not copy traits and health conditions.";
-
-		public const string APPLY = "Apply";
-
 		public HashSet<ThingDef> selected = new HashSet<ThingDef>();
 
 		public override Vector2 InitialSize
@@ -31,13 +26,13 @@ namespace RW_CustomPawnGeneration
 		{
 			Text.Font = GameFont.Tiny;
 			{
-				gui.Label(DESCRIPTION);
+				gui.Label(Strings.Descriptions.Copy.Info);
 			}
 			Text.Font = GameFont.Small;
 
 			gui.Gap(10f);
 
-			if (gui.ButtonText(APPLY))
+			if (gui.ButtonText(Strings.Labels.Copy.Apply))
 			{
 				HashSet<Tuple<string, string, int>> currState = new HashSet<Tuple<string, string, int>>();
 				string currPrefix = $"{race.defName}|";

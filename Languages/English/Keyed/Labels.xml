@@ -24,4 +24,33 @@
     <CPG_Age_MaxAge_Label>Maximum Age&#32;</CPG_Age_MaxAge_Label>
     <CPG_Age_HasAgeTick_Label>Override Age Tick</CPG_Age_HasAgeTick_Label>
     <CPG_Age_AgeTick_Label>Aging Tick Speed [Default: 1]&#32;</CPG_Age_AgeTick_Label>
+
+    <CPG_Gender_SeparateGender_Label>Separate Gender Stats</CPG_Gender_SeparateGender_Label>
+    <CPG_Gender_OverrideGender_Label>Override Gender Frequency</CPG_Gender_OverrideGender_Label>
+    <CPG_Gender_UnforcedGender_Label>Override Forced Gender</CPG_Gender_UnforcedGender_Label>
+    <CPG_Gender_ModifyAggressively_Label>Modify Aggressively</CPG_Gender_ModifyAggressively_Label>
+    <CPG_Gender_Male_Label>Male</CPG_Gender_Male_Label>
+    <CPG_Gender_Female_Label>Female</CPG_Gender_Female_Label>
+
+    <CPG_Body_FilterBody_Label>Filter Body Types</CPG_Body_FilterBody_Label>
+
+    <CPG_Traits_OverrideTraits_Label>Allow Forced/Blocked Traits</CPG_Traits_OverrideTraits_Label>
+    <CPG_Traits_Normal_Label>Normal</CPG_Traits_Normal_Label>
+    <CPG_Traits_Blocked_Label>Blocked</CPG_Traits_Blocked_Label>
+    <CPG_Traits_Forced_Label>Forced</CPG_Traits_Forced_Label>
+
+    <CPG_Hediff_NoBodyPart_Label>No Body Part</CPG_Hediff_NoBodyPart_Label>
+
+    <CPG_Copy_Apply_Label>Apply</CPG_Copy_Apply_Label>
+
+    <CPG_Combo_HeaderTip_Label>Hover over the header for the description.</CPG_Combo_HeaderTip_Label>
+    <CPG_Combo_Disabled_Label>Disabled</CPG_Combo_Disabled_Label>
+    <CPG_Combo_Enabled_Label>Enabled</CPG_Combo_Enabled_Label>
+    <CPG_Combo_UseGlobalConfig_Label>Use Global Config</CPG_Combo_UseGlobalConfig_Label>
+
+    <CPG_Section_Gender_Label>Gender</CPG_Section_Gender_Label>
+    <CPG_Section_Age_Label>Age</CPG_Section_Age_Label>
+    <CPG_Section_Body_Label>Body</CPG_Section_Body_Label>
+    <CPG_Section_Traits_Label>Traits</CPG_Section_Traits_Label>
+    <CPG_Section_Hediff_Label>Health Conditions</CPG_Section_Hediff_Label>
 </LanguageData>

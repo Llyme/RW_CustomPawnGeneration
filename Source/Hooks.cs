@@ -35,7 +35,7 @@ namespace RW_CustomPawnGeneration
 
 			if (!Settings.GBool(
 				Settings.State.GLOBAL.Bool(Strings.Keys.UseRaceSpecific) ? pawn.kindDef.race : null,
-				GenderWindow.UnforcedGender
+				Strings.Keys.UnforcedGender
 			))
 				return true;
 
@@ -65,7 +65,7 @@ namespace RW_CustomPawnGeneration
 
 			if (!Settings.GBool(
 				Settings.State.GLOBAL.Bool(Strings.Keys.UseRaceSpecific) ? pawn.kindDef.race : null,
-				GenderWindow.UnforcedGender
+				Strings.Keys.UnforcedGender
 			))
 				return true;
 
@@ -106,7 +106,7 @@ namespace RW_CustomPawnGeneration
 
 			if (!Settings.GBool(
 				Settings.State.GLOBAL.Bool(Strings.Keys.UseRaceSpecific) ? pawn.kindDef.race : null,
-				GenderWindow.UnforcedGender
+				Strings.Keys.UnforcedGender
 			))
 				return true;
 
@@ -167,7 +167,7 @@ namespace RW_CustomPawnGeneration
 
 			if (!Settings.GBool(
 				Settings.State.GLOBAL.Bool(Strings.Keys.UseRaceSpecific) ? pawn.kindDef.race : null,
-				GenderWindow.UnforcedGender
+				Strings.Keys.UnforcedGender
 			))
 				return true;
 
@@ -221,11 +221,11 @@ namespace RW_CustomPawnGeneration
 				out Settings.State state
 			);
 
-			if (!Settings.Bool(global, state, AgeWindow.HasMaxAge))
+			if (!Settings.Bool(global, state, Strings.Keys.HasMaxAge))
 				return;
 
-			bool isGlobal = Settings.IsGlobal(state, AgeWindow.HasMaxAge);
-			int maxAge = Settings.Int(global, state, AgeWindow.MaxAge, isGlobal);
+			bool isGlobal = Settings.IsGlobal(state, Strings.Keys.HasMaxAge);
+			int maxAge = Settings.Int(global, state, Strings.Keys.MaxAge, isGlobal);
 			int ageYears = __instance.AgeBiologicalYears;
 
 			if (ageYears > maxAge)
@@ -233,7 +233,7 @@ namespace RW_CustomPawnGeneration
 				long ticks = (ageYears - maxAge) * 3600000;
 				__instance.AgeBiologicalTicks -= ticks;
 
-				if (Settings.Bool(global, state, AgeWindow.MaxAgeChrono))
+				if (Settings.Bool(global, state, Strings.Keys.MaxAgeChrono))
 					__instance.AgeChronologicalTicks += ticks;
 			}
 		}
@@ -269,8 +269,8 @@ namespace RW_CustomPawnGeneration
 			int tick = Settings.Int(
 				global,
 				state,
-				AgeWindow.AgeTick,
-				Settings.IsGlobal(state, AgeWindow.HasAgeTick)
+				Strings.Keys.AgeTick,
+				Settings.IsGlobal(state, Strings.Keys.HasAgeTick)
 			);
 
 			if (tick == 0)
@@ -350,10 +350,10 @@ namespace RW_CustomPawnGeneration
 				out Settings.State state
 			);
 
-			if (!Settings.Bool(global, state, GenderWindow.OverrideGender))
+			if (!Settings.Bool(global, state, Strings.Keys.OverrideGender))
 				return;
 
-			if (!Settings.Bool(global, state, GenderWindow.ModifyAggressively))
+			if (!Settings.Bool(global, state, Strings.Keys.ModifyAggressively))
 				return;
 
 			Patch_PawnGenerator_TryGenerateNewPawnInternal.genderPending[request] = pawn;
@@ -377,14 +377,14 @@ namespace RW_CustomPawnGeneration
 				out Settings.State state
 			);
 
-			bool HasMinAge = Settings.Bool(global, state, AgeWindow.HasMinAge);
-			bool HasMaxAge = Settings.Bool(global, state, AgeWindow.HasMaxAge);
-			bool MinAgeSoft = Settings.Bool(global, state, AgeWindow.MinAgeSoft);
-			bool AgeCurve = Settings.Bool(global, state, AgeWindow.AgeCurve);
-			bool HasMinAge_Global = Settings.IsGlobal(state, AgeWindow.HasMinAge);
-			bool HasMaxAge_Global = Settings.IsGlobal(state, AgeWindow.HasMaxAge);
-			int MinAge = Settings.Int(global, state, AgeWindow.MinAge, HasMinAge_Global);
-			int MaxAge = Settings.Int(global, state, AgeWindow.MaxAge, HasMaxAge_Global);
+			bool HasMinAge = Settings.Bool(global, state, Strings.Keys.HasMinAge);
+			bool HasMaxAge = Settings.Bool(global, state, Strings.Keys.HasMaxAge);
+			bool MinAgeSoft = Settings.Bool(global, state, Strings.Keys.MinAgeSoft);
+			bool AgeCurve = Settings.Bool(global, state, Strings.Keys.AgeCurve);
+			bool HasMinAge_Global = Settings.IsGlobal(state, Strings.Keys.HasMinAge);
+			bool HasMaxAge_Global = Settings.IsGlobal(state, Strings.Keys.HasMaxAge);
+			int MinAge = Settings.Int(global, state, Strings.Keys.MinAge, HasMinAge_Global);
+			int MaxAge = Settings.Int(global, state, Strings.Keys.MaxAge, HasMaxAge_Global);
 
 			if (HasMinAge || HasMaxAge)
 			{
@@ -601,12 +601,12 @@ namespace RW_CustomPawnGeneration
 				out Settings.State state
 			);
 
-			bool OverrideTraits = Settings.Bool(global, state, TraitsWindow.OverrideTraits);
+			bool OverrideTraits = Settings.Bool(global, state, Strings.Keys.OverrideTraits);
 
 			if (pawn.story == null || !OverrideTraits)
 				return;
 
-			bool IsGlobal = Settings.IsGlobal(state, TraitsWindow.OverrideTraits);
+			bool IsGlobal = Settings.IsGlobal(state, Strings.Keys.OverrideTraits);
 
 			foreach (TraitDef def in DefDatabase<TraitDef>.AllDefs)
 				foreach (TraitDegreeData data in def.degreeDatas)
@@ -614,7 +614,7 @@ namespace RW_CustomPawnGeneration
 					bool flag = Settings.Int(
 						global,
 						state,
-						$"{TraitsWindow.Trait}|{def.defName}|{data.degree}",
+						$"{Strings.Keys.Trait}|{def.defName}|{data.degree}",
 						IsGlobal
 					) == 2;
 
@@ -651,7 +651,7 @@ namespace RW_CustomPawnGeneration
 				out Settings.State state
 			);
 
-			if (!Settings.Bool(global, state, TraitsWindow.OverrideTraits))
+			if (!Settings.Bool(global, state, Strings.Keys.OverrideTraits))
 				return true;
 
 			if (Patch_PawnGenerator_GenerateTraits.traitsPending[___pawn] > MAX_STACK)
@@ -661,10 +661,10 @@ namespace RW_CustomPawnGeneration
 				return true;
 			}
 
-			bool IsGlobal = Settings.IsGlobal(state, TraitsWindow.OverrideTraits);
+			bool IsGlobal = Settings.IsGlobal(state, Strings.Keys.OverrideTraits);
 
 			Patch_PawnGenerator_GenerateTraits.traitsPending[___pawn]++;
-			return Settings.Int(global, state, $"{TraitsWindow.Trait}|{trait.def.defName}|{trait.Degree}", IsGlobal) == 0;
+			return Settings.Int(global, state, $"{Strings.Keys.Trait}|{trait.def.defName}|{trait.Degree}", IsGlobal) == 0;
 		}
 	}
 
@@ -772,15 +772,15 @@ namespace RW_CustomPawnGeneration
 				out Settings.State state
 			);
 
-			if (!Settings.Bool(global, state, GenderWindow.OverrideGender))
+			if (!Settings.Bool(global, state, Strings.Keys.OverrideGender))
 				return;
 
-			if (!Settings.Bool(global, state, GenderWindow.UnforcedGender) &&
+			if (!Settings.Bool(global, state, Strings.Keys.UnforcedGender) &&
 				request.FixedGender != null)
 				return;
 
-			bool isGlobal = Settings.IsGlobal(state, GenderWindow.OverrideGender);
-			int value = Settings.Int(global, state, GenderWindow.GenderSlider, isGlobal);
+			bool isGlobal = Settings.IsGlobal(state, Strings.Keys.OverrideGender);
+			int value = Settings.Int(global, state, Strings.Keys.GenderSlider, isGlobal);
 			Gender gender;
 
 			if (value == 100)

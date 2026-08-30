@@ -6,9 +6,6 @@ namespace RW_CustomPawnGeneration
 {
     public class ComboWindow : Window
     {
-        public const string HEADER_TIP =
-            "Hover over the header for the description.";
-
         public Action<int> callback = null;
         public string header = "";
         public string description = "";
@@ -51,7 +48,7 @@ namespace RW_CustomPawnGeneration
             {
                 Text.Font = GameFont.Tiny;
                 {
-                    gui.Label(HEADER_TIP);
+                    gui.Label(Strings.Labels.Combo.HeaderTip);
                 }
                 Text.Anchor = TextAnchor.UpperCenter;
                 Text.Font = GameFont.Medium;

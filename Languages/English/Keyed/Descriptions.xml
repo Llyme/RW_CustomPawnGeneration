@@ -13,4 +13,18 @@
     <CPG_Age_HasMaxAge_Description>If enabled, this will make sure all pawns can't be above a certain age.</CPG_Age_HasMaxAge_Description>
     <CPG_Age_MaxAgeChrono_Description>If enabled, this will increase the pawn's chronological age on every birthday if exceeding the maximum age.</CPG_Age_MaxAgeChrono_Description>
     <CPG_Age_HasAgeTick_Description>If enabled, allows you to change how fast the pawns age.</CPG_Age_HasAgeTick_Description>
+
+    <CPG_Gender_SeparateGender_Description>If enabled, this will separate the stats for male and female.</CPG_Gender_SeparateGender_Description>
+    <CPG_Gender_OverrideGender_Description>If enabled, allows you to set which gender is the most frequent.</CPG_Gender_OverrideGender_Description>
+    <CPG_Gender_UnforcedGender_Description>Some pawns have a 'forced' gender (PawnGenerationRequest.FixedGender) when being generated (backstory-related or generated as another pawn's father/mother). Enabling this will ignore it. May cause minor bugs (single fathers/mothers), but not game-breaking.</CPG_Gender_UnforcedGender_Description>
+    <CPG_Gender_ModifyAggressively_Description>When enabled, some errors caused by a change in gender will be ignored. For mod compatibility, it is recommended that this is enabled.</CPG_Gender_ModifyAggressively_Description>
+
+    <CPG_Body_BodyFix_Description>Some backstories will give pawns average body of the opposite gender. Enabling this will disable it.</CPG_Body_BodyFix_Description>
+    <CPG_Body_FilterBody_Description>When enabled, allows you to disable body types. Body types that are not checked will be disabled. There should be at least 1 body type. This only applies to humans.</CPG_Body_FilterBody_Description>
+
+    <CPG_Traits_Info_Description>* If a pawn rolls for a blocked/forced trait, it will re-roll again.\n* The game may spam a lot of '[Pawn] already has [Trait]' messages in the console.\n* The forced traits are added after generating traits, which may exceed max traits.\n* You can force the same trait with varying degrees.\nWARNING: Blocking/Forcing majority of the traits will set the game in a permanent loop, making you unable to play! Try to only block/force less than half of the traits.</CPG_Traits_Info_Description>
+    <CPG_Traits_OverrideTraits_Description>Allows blocking traits from appearing in pawns and forcing traits to be distributed to all pawns. Only applies to humans.</CPG_Traits_OverrideTraits_Description>
+    <CPG_Traits_Reset_Description>Do you want to restore all of the default values?</CPG_Traits_Reset_Description>
+
+    <CPG_Copy_Info_Description>* Does not copy traits and health conditions.</CPG_Copy_Info_Description>
 </LanguageData>

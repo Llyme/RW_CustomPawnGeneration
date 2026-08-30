@@ -17,16 +17,16 @@ namespace RW_CustomPawnGeneration
 			// Initialize default settings.
 
 			Settings.GlobalIntDefaults[Strings.Keys.UseRaceSpecific] = 1;
-			Settings.GlobalIntDefaults[GenderWindow.GenderSlider] = 50;
-			Settings.LocalIntDefaults[GenderWindow.GenderSlider] = 50;
+			Settings.GlobalIntDefaults[Strings.Keys.GenderSlider] = 50;
+			Settings.LocalIntDefaults[Strings.Keys.GenderSlider] = 50;
 
-			Settings.GlobalIntDefaults[AgeWindow.MaxAge] = 99;
-			Settings.LocalIntDefaults[AgeWindow.MaxAge] = 99;
-			Settings.GlobalIntDefaults[AgeWindow.AgeTick] = 1;
-			Settings.LocalIntDefaults[AgeWindow.AgeTick] = 1;
+			Settings.GlobalIntDefaults[Strings.Keys.MaxAge] = 99;
+			Settings.LocalIntDefaults[Strings.Keys.MaxAge] = 99;
+			Settings.GlobalIntDefaults[Strings.Keys.AgeTick] = 1;
+			Settings.LocalIntDefaults[Strings.Keys.AgeTick] = 1;
 			Settings.GlobalIntDefaults[Strings.Keys.CustomAging] = 0;
 			Settings.GlobalIntDefaults[Strings.Keys.UngenderedParent] = 0;
-			Settings.GlobalIntDefaults[GenderWindow.ModifyAggressively] = 1;
+			Settings.GlobalIntDefaults[Strings.Keys.ModifyAggressively] = 1;
 
 			foreach (BodyTypeDef def in DefDatabase<BodyTypeDef>.AllDefs)
 			{

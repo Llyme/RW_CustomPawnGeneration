@@ -57,6 +57,78 @@ namespace RW_CustomPawnGeneration
 				public static string MinAgeSoft => "CPG_Age_MinAgeSoft_Label".Translate();
 			}
 
+
+			public static class Body
+			{
+				public static string FilterBody => "CPG_Body_FilterBody_Label".Translate();
+			}
+
+
+			public static class Combo
+			{
+				public static string Disabled => "CPG_Combo_Disabled_Label".Translate();
+
+				public static string Enabled => "CPG_Combo_Enabled_Label".Translate();
+
+				public static string HeaderTip => "CPG_Combo_HeaderTip_Label".Translate();
+
+				public static string UseGlobalConfig => "CPG_Combo_UseGlobalConfig_Label".Translate();
+			}
+
+
+			public static class Copy
+			{
+				public static string Apply => "CPG_Copy_Apply_Label".Translate();
+			}
+
+
+			public static class Gender
+			{
+				public static string Female => "CPG_Gender_Female_Label".Translate();
+
+				public static string Male => "CPG_Gender_Male_Label".Translate();
+
+				public static string ModifyAggressively => "CPG_Gender_ModifyAggressively_Label".Translate();
+
+				public static string OverrideGender => "CPG_Gender_OverrideGender_Label".Translate();
+
+				public static string SeparateGender => "CPG_Gender_SeparateGender_Label".Translate();
+
+				public static string UnforcedGender => "CPG_Gender_UnforcedGender_Label".Translate();
+			}
+
+
+			public static class Hediff
+			{
+				public static string NoBodyPart => "CPG_Hediff_NoBodyPart_Label".Translate();
+			}
+
+
+			public static class Section
+			{
+				public static string Age => "CPG_Section_Age_Label".Translate();
+
+				public static string Body => "CPG_Section_Body_Label".Translate();
+
+				public static string Gender => "CPG_Section_Gender_Label".Translate();
+
+				public static string Hediff => "CPG_Section_Hediff_Label".Translate();
+
+				public static string Traits => "CPG_Section_Traits_Label".Translate();
+			}
+
+
+			public static class Traits
+			{
+				public static string Blocked => "CPG_Traits_Blocked_Label".Translate();
+
+				public static string Forced => "CPG_Traits_Forced_Label".Translate();
+
+				public static string Normal => "CPG_Traits_Normal_Label".Translate();
+
+				public static string OverrideTraits => "CPG_Traits_OverrideTraits_Label".Translate();
+			}
+
 		}
 
 		public static class Descriptions
@@ -88,10 +160,48 @@ namespace RW_CustomPawnGeneration
 				public static string MinAgeSoft => "CPG_Age_MinAgeSoft_Description".Translate();
 			}
 
+
+			public static class Body
+			{
+				public static string BodyFix => "CPG_Body_BodyFix_Description".Translate();
+
+				public static string FilterBody => "CPG_Body_FilterBody_Description".Translate();
+			}
+
+
+			public static class Copy
+			{
+				public static string Info => "CPG_Copy_Info_Description".Translate();
+			}
+
+
+			public static class Gender
+			{
+				public static string ModifyAggressively => "CPG_Gender_ModifyAggressively_Description".Translate();
+
+				public static string OverrideGender => "CPG_Gender_OverrideGender_Description".Translate();
+
+				public static string SeparateGender => "CPG_Gender_SeparateGender_Description".Translate();
+
+				public static string UnforcedGender => "CPG_Gender_UnforcedGender_Description".Translate();
+			}
+
+
+			public static class Traits
+			{
+				public static string Info => "CPG_Traits_Info_Description".Translate();
+
+				public static string OverrideTraits => "CPG_Traits_OverrideTraits_Description".Translate();
+
+				public static string Reset => "CPG_Traits_Reset_Description".Translate();
+			}
+
 		}
 
 		public static class Messages
 		{
+			public static string BodyTypeNotFiltered => "CPG_BodyTypeNotFiltered_Message".Translate();
+
 			public static string Reset(NamedArgument a0) =>
 				"CPG_Reset_Message".Translate(a0);
 		}

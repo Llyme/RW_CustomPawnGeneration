@@ -26,13 +26,13 @@ namespace RW_CustomPawnGeneration
 		{
 			Text.Font = GameFont.Tiny;
 			{
-				gui.Label(part != null ? part.Label : HediffWindow.NO_BODY_PART);
+				gui.Label(part != null ? part.Label : Strings.Labels.Hediff.NoBodyPart);
 			}
 			Text.Font = GameFont.Small;
 
 			gui.Gap(10f);
 
-			Search = gui.TextEntryLabeled(SEARCH, Search).ToLower();
+			Search = gui.TextEntryLabeled(Strings.Labels.Search, Search).ToLower();
 		}
 
 		public override void Draw_Inside(Rect inRect, Listing_Standard gui)

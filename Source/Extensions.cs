@@ -20,7 +20,7 @@ namespace RW_CustomPawnGeneration
 			return Settings.Bool(
 				global,
 				state,
-				$"{BodyWindow.FilterBody}|{bodyType.defName}",
+				$"{Strings.Keys.FilterBody}|{bodyType.defName}",
 				isGlobal
 			);
 		}
@@ -38,10 +38,10 @@ namespace RW_CustomPawnGeneration
 				out Settings.State state
 			);
 
-			if (!Settings.Bool(global, state, BodyWindow.FilterBody))
+			if (!Settings.Bool(global, state, Strings.Keys.FilterBody))
 				return;
 
-			bool isGlobal = Settings.IsGlobal(state, BodyWindow.FilterBody);
+			bool isGlobal = Settings.IsGlobal(state, Strings.Keys.FilterBody);
 
 			if (pawn.story.bodyType.CPGEnabled(global, state, isGlobal))
 				// Current body type is good.
@@ -59,10 +59,7 @@ namespace RW_CustomPawnGeneration
 				return;
 			}
 
-			Log.Warning(
-				"[CustomPawnGeneration] A pawn's body type was not filtered properly! " +
-				"You may be blocking too many body types."
-			);
+			Log.Warning(Strings.Messages.BodyTypeNotFiltered);
 		}
 
 		public static BodyTypeDef GetRandomBodyType

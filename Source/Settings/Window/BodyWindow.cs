@@ -1,4 +1,4 @@
-﻿using RimWorld;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -6,17 +6,8 @@ namespace RW_CustomPawnGeneration
 {
 	public class BodyWindow : BaseWindow
 	{
-		public const string DESCRIPTION_BODY_FIX =
-			"Some backstories will give pawns average body of the opposite gender. " +
-			"Enabling this will disable it.";
-		public const string DESCRIPTION_FILTER_BODY =
-			"When enabled, allows you to disable body types. " +
-			"Body types that are not checked will be disabled. " +
-			"There should be at least 1 body type. " +
-			"This only applies to humans.";
-
-		public const string FILTER_BODY = "Filter Body Types";
-		public const string FilterBody = "FilterBody";
+		// Not currently shown in the UI - kept for future use.
+		public static string DESCRIPTION_BODY_FIX => Strings.Descriptions.Body.BodyFix;
 
 		public override Vector2 InitialSize
 		{
@@ -32,9 +23,9 @@ namespace RW_CustomPawnGeneration
 
 		public override void Draw_Inside(Rect inRect, Listing_Standard gui)
 		{
-			Tools.GBool(gui, state, FilterBody, FILTER_BODY, DESCRIPTION_FILTER_BODY);
+			Tools.GBool(gui, state, Strings.Keys.FilterBody, Strings.Labels.Body.FilterBody, Strings.Descriptions.Body.FilterBody);
 
-			if (state.GBool(FilterBody))
+			if (state.GBool(Strings.Keys.FilterBody))
 				foreach (BodyTypeDef def in DefDatabase<BodyTypeDef>.AllDefs)
 				{
 					if (def == BodyTypeDefOf.Baby)
@@ -43,7 +34,7 @@ namespace RW_CustomPawnGeneration
 					if (def == BodyTypeDefOf.Child)
 						continue;
 
-					Tools.Bool(gui, state, $"{FilterBody}|{def.defName}", def.defName);
+					Tools.Bool(gui, state, $"{Strings.Keys.FilterBody}|{def.defName}", def.defName);
 				}
 		}
 	}

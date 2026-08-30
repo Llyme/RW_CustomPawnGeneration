@@ -5,24 +5,18 @@ namespace RW_CustomPawnGeneration
 {
 	public partial class EditWindow : BaseWindow
 	{
-		public static string[] COMBO_BOOL = new string[]
+		public static string[] COMBO_BOOL => new string[]
 		{
-				"Disabled",
-				"Enabled"
+				Strings.Labels.Combo.Disabled,
+				Strings.Labels.Combo.Enabled
 		};
 
-		public static string[] COMBO_GLOBAL_BOOL = new string[]
+		public static string[] COMBO_GLOBAL_BOOL => new string[]
 		{
-				"Use Global Config",
-				"Disabled",
-				"Enabled"
+				Strings.Labels.Combo.UseGlobalConfig,
+				Strings.Labels.Combo.Disabled,
+				Strings.Labels.Combo.Enabled
 		};
-
-		public const string GENDER = "Gender";
-		public const string AGE = "Age";
-		public const string BODY = "Body";
-		public const string TRAITS = "Traits";
-		public const string HEDIFFS = "Health Conditions";
 
 		public override Vector2 InitialSize
 		{
@@ -40,7 +34,7 @@ namespace RW_CustomPawnGeneration
 		{
 			if (hasGenders)
 			{
-				if (gui.ButtonText(GENDER))
+				if (gui.ButtonText(Strings.Labels.Section.Gender))
 					new GenderWindow(race);
 
 				gui.Gap(20f);
@@ -52,9 +46,9 @@ namespace RW_CustomPawnGeneration
 			bool gender;
 
 			if (race != null)
-				gender = Settings.Bool(new Settings.State(null), state, GenderWindow.SeparateGender);
+				gender = Settings.Bool(new Settings.State(null), state, Strings.Keys.SeparateGender);
 			else
-				gender = state.Bool(GenderWindow.SeparateGender);
+				gender = state.Bool(Strings.Keys.SeparateGender);
 
 			gui.ColumnWidth = width / 2f - 8f;
 			{
@@ -79,20 +73,20 @@ namespace RW_CustomPawnGeneration
 				gui.Gap(10f);
 			}
 
-			if (gui.ButtonText(AGE))
+			if (gui.ButtonText(Strings.Labels.Section.Age))
 				new AgeWindow(race, gender);
 
 			if (isHumanlike)
 			{
-				if (gui.ButtonText(BODY))
+				if (gui.ButtonText(Strings.Labels.Section.Body))
 					new BodyWindow(race, gender);
 
-				if (gui.ButtonText(TRAITS))
+				if (gui.ButtonText(Strings.Labels.Section.Traits))
 					new TraitsWindow(race, gender);
 			}
 
 			if (race != null &&
-				gui.ButtonText(HEDIFFS))
+				gui.ButtonText(Strings.Labels.Section.Hediff))
 				new HediffWindow(race, gender);
 		}
 	}
