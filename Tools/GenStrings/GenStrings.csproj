@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- This tool is not part of the mod build. Keep it out of the mod .sln build if added. -->
+    <IsPublishable>false</IsPublishable>
+  </PropertyGroup>
+
+</Project>

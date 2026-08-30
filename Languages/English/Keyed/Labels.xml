@@ -14,4 +14,14 @@
     <CPG_UngenderedParent_Label>Remove Parent Gender Restrictions</CPG_UngenderedParent_Label>
     <CPG_GlobalConfig_Label>[Global Config]</CPG_GlobalConfig_Label>
     <CPG_Search_Label>Search&#32;</CPG_Search_Label>
+
+    <CPG_Age_AgeCurve_Label>Preserve Age Curve</CPG_Age_AgeCurve_Label>
+    <CPG_Age_HasMinAge_Label>Has Minimum Age</CPG_Age_HasMinAge_Label>
+    <CPG_Age_MinAgeSoft_Label>Do Not Affect Pawns Below Minimum Age</CPG_Age_MinAgeSoft_Label>
+    <CPG_Age_MinAge_Label>Minimum Age&#32;</CPG_Age_MinAge_Label>
+    <CPG_Age_HasMaxAge_Label>Has Maximum Age</CPG_Age_HasMaxAge_Label>
+    <CPG_Age_MaxAgeChrono_Label>Add Excess Biological Age as Chronological Age</CPG_Age_MaxAgeChrono_Label>
+    <CPG_Age_MaxAge_Label>Maximum Age&#32;</CPG_Age_MaxAge_Label>
+    <CPG_Age_HasAgeTick_Label>Override Age Tick</CPG_Age_HasAgeTick_Label>
+    <CPG_Age_AgeTick_Label>Aging Tick Speed [Default: 1]&#32;</CPG_Age_AgeTick_Label>
 </LanguageData>

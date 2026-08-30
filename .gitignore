@@ -2,7 +2,9 @@
 .vscode
 source/Build
 source/obj
-source/.vs
+.vs/
+[Bb]in/
+[Oo]bj/
 About/PublishedFileId.txt
 v1.3/
 v1.4/

@@ -79,7 +79,24 @@
     <Compile Include="Settings\SettingsController.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Strings.cs" />
+    <Compile Include="Strings.g.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Tools.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!--
+    Regenerate Strings.g.cs from Languages/English/Keyed/*.xml before every build.
+    Requires the .NET SDK ('dotnet' on PATH). Non-fatal: if dotnet is missing the
+    checked-in Strings.g.cs is used as-is. Set GenerateStrings=false to skip.
+  -->
+  <PropertyGroup>
+    <GenerateStrings Condition=" '$(GenerateStrings)' == '' ">true</GenerateStrings>
+  </PropertyGroup>
+  <Target Name="GenerateStrings" BeforeTargets="BeforeBuild" Condition=" '$(GenerateStrings)' == 'true' ">
+    <Exec Command="dotnet run --project &quot;$(ProjectDir)..\Tools\GenStrings\GenStrings.csproj&quot; --configuration Release --verbosity quiet"
+          ContinueOnError="true"
+          WorkingDirectory="$(ProjectDir)" />
+  </Target>
 </Project>
