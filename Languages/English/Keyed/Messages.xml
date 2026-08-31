@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+    <CPG_Reset_Message>This will restore all the default values to the '{0}' settings and cannot be undone. Are you sure?</CPG_Reset_Message>
+    <CPG_BodyTypeNotFiltered_Message>[CustomPawnGeneration] A pawn's body type was not filtered properly! You may be blocking too many body types.</CPG_BodyTypeNotFiltered_Message>
+</LanguageData>

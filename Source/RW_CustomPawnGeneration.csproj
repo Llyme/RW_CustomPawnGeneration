@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9C2617F1-C6E4-4BC0-85A8-9FF7A1AE082A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RW_CustomPawnGeneration</RootNamespace>
+    <AssemblyName>RW_CustomPawnGeneration</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Build\v1.3\Assemblies\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Build\v1.6\Assemblies\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\2009463077\Current\Assemblies\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp, Version=1.5.9048.28434, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Module.cs" />
+    <Compile Include="Hooks.cs" />
+    <Compile Include="RW_CustomPawnGeneration.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Settings.cs" />
+    <Compile Include="Settings\Settings.States.cs" />
+    <Compile Include="Settings\Window\AgeWindow.cs" />
+    <Compile Include="Settings\Window\BaseWindow.cs" />
+    <Compile Include="Settings\Window\BodyPartWindow.cs" />
+    <Compile Include="Settings\Window\BodyWindow.cs" />
+    <Compile Include="Settings\Window\ComboWindow.cs" />
+    <Compile Include="Settings\Window\EditWindow.cs" />
+    <Compile Include="Settings\Window\HediffWindow.cs" />
+    <Compile Include="Settings\Window\CopyWindow.cs" />
+    <Compile Include="Settings\Window\TraitsWindow.cs" />
+    <Compile Include="Settings\Window\GenderWindow.cs" />
+    <None Include="Settings\Window\RaceWindow.cs.bak" />
+    <Compile Include="Settings\Settings.Root.cs" />
+    <Compile Include="Settings\SettingsController.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Strings.cs" />
+    <Compile Include="Strings.g.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tools.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!--
+    Regenerate Strings.g.cs from Languages/English/Keyed/*.xml before every build.
+    Requires the .NET SDK ('dotnet' on PATH). Non-fatal: if dotnet is missing the
+    checked-in Strings.g.cs is used as-is. Set GenerateStrings=false to skip.
+  -->
+  <PropertyGroup>
+    <GenerateStrings Condition=" '$(GenerateStrings)' == '' ">true</GenerateStrings>
+  </PropertyGroup>
+  <Target Name="GenerateStrings" BeforeTargets="BeforeBuild" Condition=" '$(GenerateStrings)' == 'true' ">
+    <Exec Command="dotnet run --project &quot;$(ProjectDir)..\Tools\GenStrings\GenStrings.csproj&quot; --configuration Release --verbosity quiet"
+          ContinueOnError="true"
+          WorkingDirectory="$(ProjectDir)" />
+  </Target>
+</Project>
