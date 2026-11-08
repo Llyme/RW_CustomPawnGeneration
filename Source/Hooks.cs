@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -83,25 +82,29 @@ namespace RW_CustomPawnGeneration
         }
     }
 
-    [HarmonyPatch(typeof(ParentRelationUtility), "GetFather")]
-    public static class Patch_ParentRelationUtility_GetFather
+    /// <summary>
+    /// Patches the private `GetParent` instead of `GetFather`/`GetMother`.
+    /// Those two are one-line wrappers that the .NET JIT (RimWorld 1.7+)
+    /// can inline into their callers, which skips a patch on them.
+    /// </summary>
+    [HarmonyPatch(typeof(ParentRelationUtility), "GetParent")]
+    public static class Patch_ParentRelationUtility_GetParent
     {
         public static readonly Module module =
             new Module(
                 Strings.Keys.UngenderedParent,
-                typeof(ParentRelationUtility)
-                .GetMethod("GetFather"),
-                prefix: new HarmonyMethod(typeof(Patch_ParentRelationUtility_GetFather).GetMethod("Patch"))
+                AccessTools.Method(typeof(ParentRelationUtility), "GetParent"),
+                prefix: new HarmonyMethod(typeof(Patch_ParentRelationUtility_GetParent).GetMethod("Patch"))
             );
 
         [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
-        public static bool Patch(this Pawn pawn, ref Pawn __result)
+        public static bool Patch(Pawn pawn, Gender parentGender, ref Pawn __result)
         {
             if (pawn == null)
                 return true;
 
-            if (__result != null)
+            if (parentGender != Gender.Male && parentGender != Gender.Female)
                 return true;
 
             if (!Settings.GBool(
@@ -116,90 +119,63 @@ namespace RW_CustomPawnGeneration
             if (pawn.relations == null)
                 return false;
 
-
-            bool has_mother = false;
+            bool wantFemale = parentGender == Gender.Female;
+            bool skippedOther = false;
 
             foreach (DirectPawnRelation relation in pawn.relations.DirectRelations)
             {
                 if (relation.def != PawnRelationDefOf.Parent)
                     continue;
 
-                if (relation.otherPawn.gender == Gender.Female)
-                {
-                    if (has_mother)
-                        // Use the 2nd female parent as the father.
-                        __result = relation.otherPawn;
-                    else
-                        has_mother = true;
+                bool isFemale = relation.otherPawn.gender == Gender.Female;
 
-                    continue;
+                if (isFemale == wantFemale)
+                {
+                    // Found a parent of the wanted gender.
+                    __result = relation.otherPawn;
+                    break;
                 }
 
-                // Found male parent.
-                __result = relation.otherPawn;
-                break;
+                // Use the 2nd parent of the other gender in place of the missing one.
+                if (skippedOther)
+                    __result = relation.otherPawn;
+                else
+                    skippedOther = true;
             }
 
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(ParentRelationUtility), "GetMother")]
-    public static class Patch_ParentRelationUtility_GetMother
+    /// <summary>
+    /// Vanilla calls `GetFather().Name` and `GetMother().Name` without a null check.
+    /// This throws when a sibling has no parent of one gender,
+    /// for example when only one gender is generated.
+    /// </summary>
+    [HarmonyPatch(typeof(PawnRelationWorker_Sibling), "ResolveMyName")]
+    public static class Patch_PawnRelationWorker_Sibling_ResolveMyName
     {
-        public static readonly Module module =
-            new Module(
-                Strings.Keys.UngenderedParent,
-                typeof(ParentRelationUtility)
-                .GetMethod("GetMother"),
-                prefix: new HarmonyMethod(typeof(Patch_ParentRelationUtility_GetMother).GetMethod("Patch"))
-            );
-
         [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
-        public static bool Patch(this Pawn pawn, ref Pawn __result)
+        public static bool Prefix(ref PawnGenerationRequest request, Pawn generated)
         {
-            if (pawn == null)
+            if (generated == null)
                 return true;
 
-            if (__result != null)
+            Pawn father = generated.GetFather();
+            Pawn mother = generated.GetMother();
+
+            if (father != null && mother != null)
                 return true;
 
-            if (!Settings.GBool(
-                Settings.State.GLOBAL.Bool(Strings.Keys.UseRaceSpecific) ? pawn.kindDef.race : null,
-                Strings.Keys.UnforcedGender
-            ))
-                return true;
-
-            if (!pawn.RaceProps.IsFlesh)
+            if (request.FixedLastName != null ||
+                !ChildRelationUtility.ChildWantsNameOfAnyParent(generated))
                 return false;
 
-            if (pawn.relations == null)
-                return false;
-
-
-            bool has_father = false;
-
-            foreach (DirectPawnRelation relation in pawn.relations.DirectRelations)
-            {
-                if (relation.def != PawnRelationDefOf.Parent)
-                    continue;
-
-                if (relation.otherPawn.gender != Gender.Female)
-                {
-                    if (has_father)
-                        // Use the 2nd non-female parent as the mother.
-                        __result = relation.otherPawn;
-                    else
-                        has_father = true;
-
-                    continue;
-                }
-
-                // Found female parent.
-                __result = relation.otherPawn;
-                break;
-            }
+            if (Rand.Value < 0.5f && father?.Name is NameTriple fatherName)
+                request.SetFixedLastName(fatherName.Last);
+            else if (mother?.Name is NameTriple motherName)
+                request.SetFixedLastName(motherName.Last);
 
             return false;
         }
@@ -850,8 +826,7 @@ namespace RW_CustomPawnGeneration
         {
             should_unpatch = 0;
 
-            Patch_ParentRelationUtility_GetFather.module.Unpatch();
-            Patch_ParentRelationUtility_GetMother.module.Unpatch();
+            Patch_ParentRelationUtility_GetParent.module.Unpatch();
         }
 
         [HarmonyPrefix]
@@ -868,13 +843,12 @@ namespace RW_CustomPawnGeneration
                     Unpatch();
             }
 
-            if (!Patch_ParentRelationUtility_GetFather.module.IsPatched)
+            if (!Patch_ParentRelationUtility_GetParent.module.IsPatched)
             {
                 in_postfix = true;
                 should_unpatch = 1;
 
-                Patch_ParentRelationUtility_GetFather.module.Patch();
-                Patch_ParentRelationUtility_GetMother.module.Patch();
+                Patch_ParentRelationUtility_GetParent.module.Patch();
             }
             else if (should_unpatch > 0)
             {
