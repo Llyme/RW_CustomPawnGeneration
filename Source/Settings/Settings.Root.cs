@@ -130,15 +130,9 @@ namespace RW_CustomPawnGeneration
 
 				if (_UngenderedParentUpdated)
 					if (_UngenderedParent)
-					{
-						Patch_ParentRelationUtility_GetFather.module.Patch();
-						Patch_ParentRelationUtility_GetMother.module.Patch();
-					}
+						Patch_ParentRelationUtility_GetParent.module.Patch();
 					else
-					{
-						Patch_ParentRelationUtility_GetFather.module.Unpatch();
-						Patch_ParentRelationUtility_GetMother.module.Unpatch();
-					}
+						Patch_ParentRelationUtility_GetParent.module.Unpatch();
 			}
 
 			gui.Gap(20f);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -83,25 +82,29 @@ namespace RW_CustomPawnGeneration
         }
     }
 
-    [HarmonyPatch(typeof(ParentRelationUtility), "GetFather")]
-    public static class Patch_ParentRelationUtility_GetFather
+    /// <summary>
+    /// Patches the private `GetParent` instead of `GetFather`/`GetMother`.
+    /// Those two are one-line wrappers that the .NET JIT (RimWorld 1.7+)
+    /// can inline into their callers, which skips a patch on them.
+    /// </summary>
+    [HarmonyPatch(typeof(ParentRelationUtility), "GetParent")]
+    public static class Patch_ParentRelationUtility_GetParent
     {
         public static readonly Module module =
             new Module(
                 Strings.Keys.UngenderedParent,
-                typeof(ParentRelationUtility)
-                .GetMethod("GetFather"),
-                prefix: new HarmonyMethod(typeof(Patch_ParentRelationUtility_GetFather).GetMethod("Patch"))
+                AccessTools.Method(typeof(ParentRelationUtility), "GetParent"),
+                prefix: new HarmonyMethod(typeof(Patch_ParentRelationUtility_GetParent).GetMethod("Patch"))
             );
 
         [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
-        public static bool Patch(this Pawn pawn, ref Pawn __result)
+        public static bool Patch(Pawn pawn, Gender parentGender, ref Pawn __result)
         {
             if (pawn == null)
                 return true;
 
-            if (__result != null)
+            if (parentGender != Gender.Male && parentGender != Gender.Female)
                 return true;
 
             if (!Settings.GBool(
@@ -116,90 +119,63 @@ namespace RW_CustomPawnGeneration
             if (pawn.relations == null)
                 return false;
 
-
-            bool has_mother = false;
+            bool wantFemale = parentGender == Gender.Female;
+            bool skippedOther = false;
 
             foreach (DirectPawnRelation relation in pawn.relations.DirectRelations)
             {
                 if (relation.def != PawnRelationDefOf.Parent)
                     continue;
 
-                if (relation.otherPawn.gender == Gender.Female)
-                {
-                    if (has_mother)
-                        // Use the 2nd female parent as the father.
-                        __result = relation.otherPawn;
-                    else
-                        has_mother = true;
+                bool isFemale = relation.otherPawn.gender == Gender.Female;
 
-                    continue;
+                if (isFemale == wantFemale)
+                {
+                    // Found a parent of the wanted gender.
+                    __result = relation.otherPawn;
+                    break;
                 }
 
-                // Found male parent.
-                __result = relation.otherPawn;
-                break;
+                // Use the 2nd parent of the other gender in place of the missing one.
+                if (skippedOther)
+                    __result = relation.otherPawn;
+                else
+                    skippedOther = true;
             }
 
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(ParentRelationUtility), "GetMother")]
-    public static class Patch_ParentRelationUtility_GetMother
+    /// <summary>
+    /// Vanilla calls `GetFather().Name` and `GetMother().Name` without a null check.
+    /// This throws when a sibling has no parent of one gender,
+    /// for example when only one gender is generated.
+    /// </summary>
+    [HarmonyPatch(typeof(PawnRelationWorker_Sibling), "ResolveMyName")]
+    public static class Patch_PawnRelationWorker_Sibling_ResolveMyName
     {
-        public static readonly Module module =
-            new Module(
-                Strings.Keys.UngenderedParent,
-                typeof(ParentRelationUtility)
-                .GetMethod("GetMother"),
-                prefix: new HarmonyMethod(typeof(Patch_ParentRelationUtility_GetMother).GetMethod("Patch"))
-            );
-
         [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
-        public static bool Patch(this Pawn pawn, ref Pawn __result)
+        public static bool Prefix(ref PawnGenerationRequest request, Pawn generated)
         {
-            if (pawn == null)
+            if (generated == null)
                 return true;
 
-            if (__result != null)
+            Pawn father = generated.GetFather();
+            Pawn mother = generated.GetMother();
+
+            if (father != null && mother != null)
                 return true;
 
-            if (!Settings.GBool(
-                Settings.State.GLOBAL.Bool(Strings.Keys.UseRaceSpecific) ? pawn.kindDef.race : null,
-                Strings.Keys.UnforcedGender
-            ))
-                return true;
-
-            if (!pawn.RaceProps.IsFlesh)
+            if (request.FixedLastName != null ||
+                !ChildRelationUtility.ChildWantsNameOfAnyParent(generated))
                 return false;
 
-            if (pawn.relations == null)
-                return false;
-
-
-            bool has_father = false;
-
-            foreach (DirectPawnRelation relation in pawn.relations.DirectRelations)
-            {
-                if (relation.def != PawnRelationDefOf.Parent)
-                    continue;
-
-                if (relation.otherPawn.gender != Gender.Female)
-                {
-                    if (has_father)
-                        // Use the 2nd non-female parent as the mother.
-                        __result = relation.otherPawn;
-                    else
-                        has_father = true;
-
-                    continue;
-                }
-
-                // Found female parent.
-                __result = relation.otherPawn;
-                break;
-            }
+            if (Rand.Value < 0.5f && father?.Name is NameTriple fatherName)
+                request.SetFixedLastName(fatherName.Last);
+            else if (mother?.Name is NameTriple motherName)
+                request.SetFixedLastName(motherName.Last);
 
             return false;
         }
@@ -357,7 +333,7 @@ namespace RW_CustomPawnGeneration
             if (!Settings.Bool(global, state, Strings.Keys.ModifyAggressively))
                 return;
 
-            Patch_PawnGenerator_TryGenerateNewPawnInternal.genderPending[request] = pawn;
+            Patch_PawnGenerator_TryGenerateNewPawnInternal.SetPending(pawn);
         }
 
         [HarmonyPostfix]
@@ -672,11 +648,74 @@ namespace RW_CustomPawnGeneration
     [HarmonyPatch(typeof(PawnGenerator), "TryGenerateNewPawnInternal")]
     public static class Patch_PawnGenerator_TryGenerateNewPawnInternal
     {
-        public static Dictionary<PawnGenerationRequest, Pawn> genderPending = new Dictionary<PawnGenerationRequest, Pawn>();
-        public static HashSet<PawnGenerationRequest> genderChanges = new HashSet<PawnGenerationRequest>();
+        public const string REQUIRED_WORK_TAGS_ERROR = "Generated pawn with disabled requiredWorkTags.";
 
-        public static void DiscardGeneratedPawn(Pawn pawn)
+        /// <summary>
+        /// One frame per `TryGenerateNewPawnInternal` call, so nested pawn generation
+        /// (relatives) keeps its own state.
+        /// </summary>
+        public class Frame
         {
+            /// <summary>
+            /// The pawn whose discard is held back until the postfix.
+            /// </summary>
+            public Pawn pawn;
+            /// <summary>
+            /// True when the gender of this request was changed by this mod.
+            /// </summary>
+            public bool genderChanged;
+            /// <summary>
+            /// The vanilla generation status (boxed) captured when vanilla tried to discard `pawn`.
+            /// Null when vanilla never tried to discard it.
+            /// </summary>
+            public object status;
+        }
+
+        private static readonly List<Frame> frames = new List<Frame>();
+
+        /// <summary>
+        /// One entry per running `GeneratePawn` call.
+        /// True when this mod changed the gender of that request.
+        /// </summary>
+        public static readonly List<bool> genderChanges = new List<bool>();
+
+        public static Frame Current => frames.Count > 0 ? frames[frames.Count - 1] : null;
+
+        public static void SetPending(Pawn pawn)
+        {
+            Frame frame = Current;
+
+            if (frame != null)
+                frame.pawn = pawn;
+        }
+
+        /// <summary>
+        /// Returns the frame that holds back the discard of this pawn, if any.
+        /// </summary>
+        public static Frame FindPending(Pawn pawn)
+        {
+            if (pawn == null)
+                return null;
+
+            for (int i = frames.Count - 1; i >= 0; i--)
+                if (frames[i].pawn == pawn)
+                    return frames[i];
+
+            return null;
+        }
+
+        /// <summary>
+        /// Runs the vanilla discard that was held back.
+        /// Vanilla reads the last entry of `pawnsBeingGenerated`,
+        /// but that entry is already removed when the postfix runs,
+        /// so the captured entry is put back for the call.
+        /// </summary>
+        private static void DiscardGeneratedPawn(Frame frame, Pawn pawn)
+        {
+            if (frame.status == null)
+                // Vanilla never tried to discard this pawn. Do the same.
+                return;
+
             MethodInfo method = AccessTools.Method(
                 typeof(PawnGenerator),
                 "DiscardGeneratedPawn"
@@ -686,74 +725,92 @@ namespace RW_CustomPawnGeneration
                 return;
 
             IList pawnsBeingGenerated = Tools.PawnsBeingGenerated;
-            object dummy = Patch_PawnGenerator_DiscardGeneratedPawn.dummy;
-            bool validDummy = dummy != null && !pawnsBeingGenerated.Contains(dummy);
 
-            if (validDummy)
-                pawnsBeingGenerated.Add(dummy);
+            if (pawnsBeingGenerated == null)
+                return;
 
-            method.Invoke(null, new object[] { pawn });
+            pawnsBeingGenerated.Add(frame.status);
 
-            if (validDummy)
-                pawnsBeingGenerated.Remove(dummy);
+            try
+            {
+                method.Invoke(null, new object[] { pawn });
+            }
+            finally
+            {
+                pawnsBeingGenerated.RemoveAt(pawnsBeingGenerated.Count - 1);
+            }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        [HarmonyPrefix]
+        public static void Prefix()
+        {
+            frames.Add(new Frame
+            {
+                genderChanged = genderChanges.Count > 0 && genderChanges[genderChanges.Count - 1]
+            });
         }
 
         [HarmonyPriority(Priority.First)]
         [HarmonyPostfix]
-        public static void Postfix(ref PawnGenerationRequest request, ref Pawn __result, ref string error)
+        public static void Postfix(ref Pawn __result, ref string error)
         {
+            Frame frame = Current;
+
+            if (frame == null || frame.pawn == null)
+                return;
+
+            Pawn pawn = frame.pawn;
+
+            // Clear first, so the discard prefix lets the vanilla discard run.
+            frame.pawn = null;
+
             if (__result != null)
                 return;
 
-            if (!genderPending.ContainsKey(request))
-                return;
-
-            bool genderChanged = genderChanges.Contains(request);
-            Pawn pawn = genderPending[request];
-
-            genderPending.Remove(request);
-            genderChanges.Remove(request);
-
-
-            if (!genderChanged)
+            if (frame.genderChanged && error == REQUIRED_WORK_TAGS_ERROR)
             {
-                DiscardGeneratedPawn(pawn);
+                Log.Warning($"[CustomPawnGeneration] '{pawn.Name}' was generated with an error '{error}'!");
+
+                __result = pawn;
+                error = null;
                 return;
             }
 
-            if (error != "Generated pawn with disabled requiredWorkTags.")
-            {
-                DiscardGeneratedPawn(pawn);
-                return;
-            }
+            DiscardGeneratedPawn(frame, pawn);
+        }
 
-            Log.Warning($"[CustomPawnGeneration] '{pawn.Name}' was generated with an error '{error}'!");
-
-            __result = pawn;
-            error = null;
+        /// <summary>
+        /// Runs even when generation throws, so a frame is never left behind.
+        /// </summary>
+        [HarmonyFinalizer]
+        public static void Finalizer()
+        {
+            if (frames.Count > 0)
+                frames.RemoveAt(frames.Count - 1);
         }
     }
 
     [HarmonyPatch(typeof(PawnGenerator), "DiscardGeneratedPawn")]
     public static class Patch_PawnGenerator_DiscardGeneratedPawn
     {
-        public static object dummy = null;
-
         [HarmonyPriority(Priority.First)]
         [HarmonyPrefix]
         public static bool Prefix(Pawn pawn)
         {
-            if (Patch_PawnGenerator_TryGenerateNewPawnInternal.genderPending.ContainsValue(pawn))
-            {
-                IList pawnsBeingGenerated = Tools.PawnsBeingGenerated;
+            Patch_PawnGenerator_TryGenerateNewPawnInternal.Frame frame =
+                Patch_PawnGenerator_TryGenerateNewPawnInternal.FindPending(pawn);
 
-                if (pawnsBeingGenerated.Count > 0)
-                    dummy = pawnsBeingGenerated[0];
+            if (frame == null)
+                return true;
 
-                return false;
-            }
+            // Hold back the discard. Keep the status vanilla needs to run it later.
+            IList pawnsBeingGenerated = Tools.PawnsBeingGenerated;
 
-            return true;
+            if (pawnsBeingGenerated != null && pawnsBeingGenerated.Count > 0)
+                frame.status = pawnsBeingGenerated[pawnsBeingGenerated.Count - 1];
+
+            return false;
         }
     }
 
@@ -762,10 +819,28 @@ namespace RW_CustomPawnGeneration
     {
         [HarmonyPriority(Priority.First)]
         [HarmonyPrefix]
-        public static void Prefix(ref PawnGenerationRequest request)
+        public static void Prefix(ref PawnGenerationRequest request, out bool __state)
+        {
+            Patch_PawnGenerator_TryGenerateNewPawnInternal.genderChanges.Add(ChangeGender(ref request));
+            __state = true;
+        }
+
+        [HarmonyFinalizer]
+        public static void Finalizer(bool __state)
+        {
+            List<bool> genderChanges = Patch_PawnGenerator_TryGenerateNewPawnInternal.genderChanges;
+
+            if (__state && genderChanges.Count > 0)
+                genderChanges.RemoveAt(genderChanges.Count - 1);
+        }
+
+        /// <summary>
+        /// Returns true when the gender of the request was changed.
+        /// </summary>
+        private static bool ChangeGender(ref PawnGenerationRequest request)
         {
             if (!request.KindDef.RaceProps.hasGenders)
-                return;
+                return false;
 
             Settings.GetStateMale(
                 Settings.State.GLOBAL.Bool(Strings.Keys.UseRaceSpecific) ? request.KindDef.race : null,
@@ -774,11 +849,11 @@ namespace RW_CustomPawnGeneration
             );
 
             if (!Settings.Bool(global, state, Strings.Keys.OverrideGender))
-                return;
+                return false;
 
             if (!Settings.Bool(global, state, Strings.Keys.UnforcedGender) &&
                 request.FixedGender != null)
-                return;
+                return false;
 
             bool isGlobal = Settings.IsGlobal(state, Strings.Keys.OverrideGender);
             int value = Settings.Int(global, state, Strings.Keys.GenderSlider, isGlobal);
@@ -794,11 +869,11 @@ namespace RW_CustomPawnGeneration
                 gender = Gender.Male;
 
             if (request.FixedGender == gender)
-                return;
+                return false;
 
             request.FixedGender = gender;
 
-            Patch_PawnGenerator_TryGenerateNewPawnInternal.genderChanges.Add(request);
+            return true;
         }
 
         [HarmonyPostfix, HarmonyPriority(Priority.Last)]
@@ -850,8 +925,7 @@ namespace RW_CustomPawnGeneration
         {
             should_unpatch = 0;
 
-            Patch_ParentRelationUtility_GetFather.module.Unpatch();
-            Patch_ParentRelationUtility_GetMother.module.Unpatch();
+            Patch_ParentRelationUtility_GetParent.module.Unpatch();
         }
 
         [HarmonyPrefix]
@@ -868,13 +942,12 @@ namespace RW_CustomPawnGeneration
                     Unpatch();
             }
 
-            if (!Patch_ParentRelationUtility_GetFather.module.IsPatched)
+            if (!Patch_ParentRelationUtility_GetParent.module.IsPatched)
             {
                 in_postfix = true;
                 should_unpatch = 1;
 
-                Patch_ParentRelationUtility_GetFather.module.Patch();
-                Patch_ParentRelationUtility_GetMother.module.Patch();
+                Patch_ParentRelationUtility_GetParent.module.Patch();
             }
             else if (should_unpatch > 0)
             {
